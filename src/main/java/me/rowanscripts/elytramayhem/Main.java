@@ -22,7 +22,10 @@ public final class Main extends JavaPlugin {
         public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
             if (sender instanceof Player){
-                System.out.println(args[0]);
+                if (args.length == 0)
+                    return false;
+
+
             } else if (sender instanceof ConsoleCommandSender){
                 System.out.println(ChatColor.RED + "[Elytra Mayhem] This command may not be executed via the console!");
             }
