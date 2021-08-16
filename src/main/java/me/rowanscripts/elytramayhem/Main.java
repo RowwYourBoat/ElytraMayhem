@@ -12,15 +12,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
 
-    FileConfiguration configuration = this.getConfig();
+    FileConfiguration configuration = getConfig();
 
     @Override
     public void onEnable() {
-        configuration.addDefault("findNonWaterBiome", true); // forces the plugin to find a biome without water
+        configuration.addDefault("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
         configuration.addDefault("fireworkReceivingDelay", 2400); // the time it takes for the players to receive a new firework (in ticks)
         configuration.addDefault("borderSize", 300); // the size of the border (minimum: 100)
         configuration.addDefault("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
         configuration.addDefault("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 30)
+        configuration.options().copyDefaults(true);
         saveConfig();
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
     }
@@ -39,9 +40,9 @@ public final class Main extends JavaPlugin {
                 if (firstArgument.equalsIgnoreCase("start")){
                     boolean eligibleForStart = this.startGame(executor);
                     if (!eligibleForStart)
-                        executor.sendMessage(ChatColor.RED + "Not eligible for start!");
+                        executor.sendMessage(ChatColor.RED + "Couldn't find a location! Please try again!");
                     else
-                        executor.sendMessage(ChatColor.GREEN + "Starting the game! This might take some time!");
+                        executor.sendMessage(ChatColor.GREEN + "Successfully started the game!");
                 } else if (firstArgument.equalsIgnoreCase("stop")){
 
                 } else if (firstArgument.equalsIgnoreCase("settings")){
