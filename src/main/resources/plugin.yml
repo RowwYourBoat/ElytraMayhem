@@ -1,0 +1,15 @@
+name: ElytraMayhem
+version: '${project.version}'
+main: me.rowanscripts.elytramayhem.Main
+api-version: 1.17
+prefix: Elytra Mayhem
+authors: [ Rowan ]
+description: This is a minigame plugin, where you'll have to fight to the death with elytra's. Loot chests spawn in the air, so good luck!
+website: https://www.spigotmc.org/members/rowantjenl.744624/
+
+commands:
+  battle:
+    usage: /battle <start|stop|settings>
+    description: Manage the game
+    permission-message: Insufficient permissions!
+    permission: elytramayhem.battle
