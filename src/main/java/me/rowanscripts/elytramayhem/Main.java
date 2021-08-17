@@ -8,6 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -18,11 +22,13 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         configuration.addDefault("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
         configuration.addDefault("fireworkReceivingDelay", 2400); // the time it takes for the players to receive a new firework (in ticks)
-        configuration.addDefault("borderSize", 300); // the size of the border (minimum: 100)
+        configuration.addDefault("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
         configuration.addDefault("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
         configuration.addDefault("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 30)
+        configuration.addDefault("playersGlow", true); // toggle whether players will glow during rounds
         configuration.options().copyDefaults(true);
         saveConfig();
+
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
     }
 
@@ -40,7 +46,7 @@ public final class Main extends JavaPlugin {
                 if (firstArgument.equalsIgnoreCase("start")){
                     boolean eligibleForStart = this.startGame(executor);
                     if (!eligibleForStart)
-                        executor.sendMessage(ChatColor.RED + "Couldn't find a location! Please try again!");
+                        executor.sendMessage(ChatColor.RED + "Something went wrong!");
                     else
                         executor.sendMessage(ChatColor.GREEN + "Successfully started the game!");
                 } else if (firstArgument.equalsIgnoreCase("stop")){
