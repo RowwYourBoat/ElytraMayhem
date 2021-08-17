@@ -8,10 +8,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class game extends roundSetup {
 
     boolean setupInProgress = false;
     boolean gameInProgress = false;
+
+    List<UUID> playersInGame = new ArrayList<>();
 
     public boolean startGame(Player executor) {
         Bukkit.getPluginManager().registerEvents(new eventListener(), JavaPlugin.getPlugin(Main.class));
@@ -20,6 +26,7 @@ public class game extends roundSetup {
 
         setupInProgress = true;
         for(Player player : Bukkit.getOnlinePlayers()) {
+            playersInGame.add(player.getUniqueId());
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);
         }
@@ -28,7 +35,8 @@ public class game extends roundSetup {
         this.findPossibleBorderLocation(executor);
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully found an appropriate battle location!");
         this.teleportPlayersAboveLocation(executor);
-        Bukkit.broadcastMessage(ChatColor.GRAY + "Spawning loot chests..");
+        Bukkit.broadcastMessage(ChatColor.GRAY + "Generating loot chests..");
+        this.spawnLootChests(executor);
 
         return true;
     }

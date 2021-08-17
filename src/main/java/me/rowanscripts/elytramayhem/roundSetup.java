@@ -1,9 +1,8 @@
 package me.rowanscripts.elytramayhem;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,10 +36,42 @@ public class roundSetup {
     public void teleportPlayersAboveLocation(Player playerWhoStartedTheGame) {
 
         World currentWorld = playerWhoStartedTheGame.getWorld();
+
+        WorldBorder border = currentWorld.getWorldBorder();
+        border.setCenter(borderLocation);
+        border.setSize(configuration.getDouble("borderSize"));
+
         Location aboveArenaTeleportLocation = new Location(currentWorld, borderLocation.getX(), borderLocation.getY() + 50, borderLocation.getZ(), 0, 90);
 
         for(Player player : Bukkit.getOnlinePlayers())
             player.teleport(aboveArenaTeleportLocation);
+
+    }
+
+    public void fillLootChest(Material chest){
+
+    }
+
+    public void spawnLootChests(Player playerWhoStartedTheGame) {
+
+        int amountOfChests = configuration.getInt("amountOfChests");
+        int borderSize = configuration.getInt("borderSize");
+
+        Random random = new Random();
+        World currentWorld = playerWhoStartedTheGame.getWorld();
+        for(int i = 0 ; i < (amountOfChests + 1) ; i++){
+            int randomX = random.nextInt(200 - 125) - 125;
+            int randomY = random.nextInt(200 - 125) - 125;
+            int randomZ = random.nextInt(200 - 125) - 125;
+            Location chestLocation = new Location(currentWorld, randomX, randomY, randomZ);
+            Location blockUnderChestLocation = new Location(currentWorld, randomX, randomY - 1, randomZ);
+            chestLocation.getBlock().setType(Material.CHEST);
+            blockUnderChestLocation.getBlock().setType(Material.SEA_LANTERN);
+
+            fillLootChest(currentWorld.getBlockAt(chestLocation).getType());
+            for(Player player : Bukkit.getOnlinePlayers())
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Generating Loot Chests: " + i + "/" + amountOfChests));
+        }
 
     }
 
