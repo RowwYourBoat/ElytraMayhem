@@ -14,7 +14,7 @@ public class game extends roundSetup {
     boolean gameInProgress = false;
 
     public boolean startGame(Player executor) {
-        Bukkit.getPluginManager().registerEvents(new game.eventListener(), JavaPlugin.getPlugin(Main.class));
+        Bukkit.getPluginManager().registerEvents(new eventListener(), JavaPlugin.getPlugin(Main.class));
         if (setupInProgress || gameInProgress)
             return false;
 
