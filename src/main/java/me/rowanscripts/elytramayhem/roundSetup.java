@@ -60,10 +60,11 @@ public class roundSetup {
         Random random = new Random();
         World currentWorld = playerWhoStartedTheGame.getWorld();
         for(int i = 0 ; i < (amountOfChests + 1) ; i++){
-            int randomX = random.nextInt(200 - 125) - 125;
-            int randomY = random.nextInt(200 - 125) - 125;
-            int randomZ = random.nextInt(200 - 125) - 125;
+            int randomX = random.nextInt(((int) borderLocation.getX()+(borderSize/2)) - ((int) borderLocation.getX()-(borderSize/2))) + ((int) borderLocation.getX()+(borderSize/2));
+            int randomY = random.nextInt(200 - 125) + 125;
+            int randomZ = random.nextInt(((int) borderLocation.getZ()+(borderSize/2)) - ((int) borderLocation.getZ()-(borderSize/2))) + ((int) borderLocation.getZ()+(borderSize/2));
             Location chestLocation = new Location(currentWorld, randomX, randomY, randomZ);
+            System.out.println(chestLocation);
             Location blockUnderChestLocation = new Location(currentWorld, randomX, randomY - 1, randomZ);
             chestLocation.getBlock().setType(Material.CHEST);
             blockUnderChestLocation.getBlock().setType(Material.SEA_LANTERN);
