@@ -28,14 +28,14 @@ public final class Main extends JavaPlugin {
         configuration.addDefault("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
         configuration.addDefault("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
         configuration.addDefault("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 30)
-        List lootItemsList = getDefaultLootItems();
+        List<ItemStack> lootItemsList = getDefaultLootItems();
         configuration.addDefault("lootItems", lootItemsList);
         configuration.options().copyDefaults(true);
         saveConfig();
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
     }
 
-    public List getDefaultLootItems(){
+    public List<ItemStack> getDefaultLootItems(){
         List<ItemStack> lootItems = new ArrayList<>();
 
         lootItems.add(new ItemStack(Material.WOODEN_SWORD));
@@ -64,6 +64,7 @@ public final class Main extends JavaPlugin {
         lootItems.add(new ItemStack(Material.LEATHER_HELMET));
         lootItems.add(new ItemStack(Material.CHAINMAIL_HELMET));
         lootItems.add(new ItemStack(Material.IRON_HELMET));
+        lootItems.add(new ItemStack(Material.SHIELD));
 
         lootItems.add(new ItemStack(Material.COOKED_BEEF, 8));
         lootItems.add(new ItemStack(Material.BREAD, 16));
@@ -102,6 +103,8 @@ public final class Main extends JavaPlugin {
                 } else if (firstArgument.equalsIgnoreCase("stop")){
                     this.endGame();
                 } else if (firstArgument.equalsIgnoreCase("settings")){
+
+                } else if (firstArgument.equalsIgnoreCase("reload")){
 
                 } else
                     return false;

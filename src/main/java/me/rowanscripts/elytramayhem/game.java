@@ -1,6 +1,7 @@
 package me.rowanscripts.elytramayhem;
 
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -8,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -21,6 +24,7 @@ public class game extends roundSetup {
 
     boolean setupInProgress = false;
     boolean gameInProgress = false;
+    int timeUntilStart = 10;
 
     List<UUID> playersInGame = new ArrayList<>();
 
@@ -50,9 +54,8 @@ public class game extends roundSetup {
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully generated " + amountOfChests + " loot chests!");
         Bukkit.broadcastMessage(ChatColor.GRAY + "Finishing up..");
 
-        setupInProgress = false;
-        gameInProgress = true;
         scheduler.scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Main.class), () -> {
+
             for(Player player : Bukkit.getOnlinePlayers()) {
                 if(playersInGame.contains(player.getUniqueId()))
                     player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 5, 1, false, false));
@@ -64,6 +67,34 @@ public class game extends roundSetup {
                 playerVictory();
                 endGame();
             }
+        }, 0, 20);
+
+        ItemStack elytra = new ItemStack(Material.ELYTRA);
+        elytra.addEnchantment(Enchantment.DURABILITY, 3);
+        for(Player player : Bukkit.getOnlinePlayers()){
+            PlayerInventory playerInv = player.getInventory();
+            this.teleportToRandomLocation(player);
+            player.setGameMode(GameMode.SURVIVAL);
+            playerInv.setChestplate(elytra);
+        }
+
+        scheduler.scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Main.class), () -> {
+
+            if (timeUntilStart > 0){
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    player.sendTitle(ChatColor.GOLD + "Starting in:", ChatColor.GREEN.toString() + timeUntilStart, 5, 20, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+                }
+                timeUntilStart--;
+            } else if (timeUntilStart == 0 && !gameInProgress) {
+                setupInProgress = false;
+                gameInProgress = true;
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
+                }
+            }
+
         }, 0, 20);
 
         return true;
@@ -85,6 +116,12 @@ public class game extends roundSetup {
         playersInGame.clear();
         setupInProgress = false;
         gameInProgress = false;
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            World currentWorld = player.getWorld();
+            player.setGameMode(GameMode.SURVIVAL);
+            player.teleport(currentWorld.getSpawnLocation());
+        }
     }
 
     public class eventListener implements Listener {
@@ -98,7 +135,7 @@ public class game extends roundSetup {
         @EventHandler(priority = EventPriority.HIGHEST)
         public void removePlayerFromListAfterDeath(PlayerDeathEvent event){
             Player player = event.getEntity();
-            if (gameInProgress){
+            if (gameInProgress || setupInProgress){
                 playersInGame.remove(player.getUniqueId());
             }
         }
@@ -106,10 +143,11 @@ public class game extends roundSetup {
         @EventHandler(priority = EventPriority.HIGHEST)
         public void removePlayerFromListAfterLeave(PlayerQuitEvent event){
             Player player = event.getPlayer();
-            if (gameInProgress){
+            if (gameInProgress || setupInProgress){
                 playersInGame.remove(player.getUniqueId());
             }
         }
+
     }
 
 }

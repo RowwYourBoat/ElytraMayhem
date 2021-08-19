@@ -87,7 +87,6 @@ public class roundSetup {
             int randomY = random.nextInt(200 - 125) + 125;
             int randomZ = random.nextInt(((int) borderLocation.getZ()+(borderSize/2)) - ((int) borderLocation.getZ()-(borderSize/2))) + ((int) borderLocation.getZ()+(borderSize/2));
             Location chestLocation = new Location(currentWorld, randomX - 150, randomY, randomZ - 150);
-            System.out.println(chestLocation);
             Location topRightUnderChestLocation = new Location(currentWorld, randomX - 151, randomY - 1, randomZ - 149);
 
             if(chestLocation.getBlock().getType() == Material.AIR) {
@@ -111,6 +110,18 @@ public class roundSetup {
             }
         }
 
+    }
+
+    public void teleportToRandomLocation(Player player){
+        Random random = new Random();
+        World currentWorld = player.getWorld();
+        int borderSize = configuration.getInt("borderSize");
+
+        int randomX = random.nextInt(((int) borderLocation.getX()+(borderSize/2)) - ((int) borderLocation.getX()-(borderSize/2))) + ((int) borderLocation.getX()+(borderSize/2));
+        int randomZ = random.nextInt(((int) borderLocation.getZ()+(borderSize/2)) - ((int) borderLocation.getZ()-(borderSize/2))) + ((int) borderLocation.getZ()+(borderSize/2));
+        Location teleportLocation = new Location(currentWorld, randomX - 150, 400, randomZ - 150);
+
+        player.teleport(teleportLocation);
     }
 
 }
