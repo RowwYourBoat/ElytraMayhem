@@ -1,5 +1,6 @@
 package me.rowanscripts.elytramayhem;
 
+import me.rowanscripts.elytramayhem.bStats.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,6 +30,9 @@ public final class Main extends JavaPlugin {
         }
         defaultConfig();
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
+
+        int pluginId = 12514;
+        Metrics metrics = new Metrics(this, pluginId);
     }
 
     public void defaultConfig(){

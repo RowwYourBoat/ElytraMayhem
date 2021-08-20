@@ -27,8 +27,8 @@ public class roundSetup extends settings {
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
 
         Random random = new Random();
-        int randomX = random.nextInt(100000 - 10000) - 10000;
-        int randomZ = random.nextInt(100000 - 10000) - 10000;
+        int randomX = random.nextInt(1000000 - 10000) - 10000;
+        int randomZ = random.nextInt(1000000 - 10000) - 10000;
         World currentWorld = playerWhoStartedTheGame.getWorld();
         Location possibleLocation = new Location(currentWorld, randomX, currentWorld.getHighestBlockYAt(randomX, randomZ), randomZ);
 
