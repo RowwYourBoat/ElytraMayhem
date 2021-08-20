@@ -14,16 +14,13 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import me.rowanscripts.elytramayhem.settings.*;
 
-import javax.naming.ConfigurationException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main extends JavaPlugin {
+public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
@@ -36,9 +33,11 @@ public class Main extends JavaPlugin {
     }
 
     public void defaultConfig(){
-        File f = new File(this.getDataFolder(), "settings.yml");
-        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
-        if (!f.exists()) {
+        File settingsFile = new File(this.getDataFolder(), "settings.yml");
+        File lootFile = new File(this.getDataFolder(), "loot.yml");
+        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
+        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
+        if (!settingsFile.exists() || !lootFile.exists()) {
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
@@ -48,8 +47,9 @@ public class Main extends JavaPlugin {
                 settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
                 List<ItemStack> lootItemsList = getDefaultLootItems();
-                settingsData.set("lootItems", lootItemsList);
-                settingsData.save(f);
+                lootData.set("lootItems", lootItemsList);
+                settingsData.save(settingsFile);
+                lootData.save(lootFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -146,6 +146,7 @@ public class Main extends JavaPlugin {
                 } else if (firstArgument.equalsIgnoreCase("reload")){
                     try {
                         settingsData.load(f);
+                        executor.sendMessage(ChatColor.GREEN + "Successfully reloaded the configuration files!");
                     } catch (IOException | InvalidConfigurationException e) {
                         e.printStackTrace();
                     }

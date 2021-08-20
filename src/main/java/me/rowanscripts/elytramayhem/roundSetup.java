@@ -62,9 +62,13 @@ public class roundSetup extends settings {
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
+
+        File lootFile = new File(plugin.getDataFolder(), "loot.yml");
+        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
+
         Inventory chestInventory = chest.getInventory();
         int maxItemsInOneChest = (int) settingsData.get("maxItemsInOneChest");
-        List<?> lootItemsList = (List<?>) settingsData.get("lootItems");
+        List<?> lootItemsList = (List<?>) lootData.get("lootItems");
 
         Random random = new Random();
         for(int i = 0 ; i < (maxItemsInOneChest + 1) ; i++){
