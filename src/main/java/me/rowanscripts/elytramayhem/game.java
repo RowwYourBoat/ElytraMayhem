@@ -39,7 +39,7 @@ public class game extends roundSetup {
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
-        int amountOfChests = (Integer) settingsData.get("amountOfChests");
+        int amountOfChests = settingsData.getInt("amountOfChests");
 
         Bukkit.getPluginManager().registerEvents(new eventListener(), JavaPlugin.getPlugin(Main.class));
         if (setupInProgress || gameInProgress)
@@ -65,7 +65,7 @@ public class game extends roundSetup {
         Bukkit.broadcastMessage(ChatColor.GRAY + "Finishing up..");
 
         ItemStack elytra = new ItemStack(Material.ELYTRA);
-        ItemStack fireworks = new ItemStack(Material.FIREWORK_ROCKET, (Integer) settingsData.get("amountOfFireworksAtStart"));
+        ItemStack fireworks = new ItemStack(Material.FIREWORK_ROCKET, settingsData.getInt("amountOfFireworksAtStart"));
         elytra.addEnchantment(Enchantment.DURABILITY, 3);
         for(Player player : Bukkit.getOnlinePlayers()){
             PlayerInventory playerInv = player.getInventory();
@@ -93,13 +93,14 @@ public class game extends roundSetup {
             }
 
             for(Player player : Bukkit.getOnlinePlayers()) {
-                if(playersInGame.contains(player.getUniqueId()))
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 5, 1, false, false));
-                else
+                if(playersInGame.contains(player.getUniqueId())) {
+                    if (settingsData.getBoolean("playersGlow"))
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 1, false, false));
+                } else
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 1 && gameInProgress){
+            if(playersInGame.size() == 2 && gameInProgress){
                 playerVictory();
                 endGame();
             }

@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,6 +21,8 @@ public class settings {
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
+        File lootFile = new File(plugin.getDataFolder(), "loot.yml");
+        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
 
         if (args.length < 2)
             executor.sendMessage("/battle settings <list|setting|reset> <set|get> <value>");
@@ -36,9 +37,12 @@ public class settings {
                 settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
                 settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
+                lootData.set("Enchantments", true);
+                lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true. You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 List<ItemStack> lootItemsList = getDefaultLootItems();
-                settingsData.set("lootItems", lootItemsList);
+                lootData.set("lootItems", lootItemsList);
                 settingsData.save(f);
+                lootData.save(lootFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -94,39 +98,29 @@ public class settings {
         List<ItemStack> lootItems = new ArrayList<>();
 
         lootItems.add(new ItemStack(Material.WOODEN_SWORD));
-        lootItems.add(createItemStackWithEnchantment(Material.WOODEN_SWORD, Enchantment.DAMAGE_ALL, 2));
         lootItems.add(new ItemStack(Material.STONE_SWORD));
-        lootItems.add(createItemStackWithEnchantment(Material.STONE_SWORD, Enchantment.DAMAGE_ALL, 2));
         lootItems.add(new ItemStack(Material.IRON_SWORD));
-        lootItems.add(createItemStackWithEnchantment(Material.IRON_SWORD, Enchantment.DAMAGE_ALL, 2));
 
         lootItems.add(new ItemStack(Material.WOODEN_AXE, 1));
         lootItems.add(new ItemStack(Material.STONE_AXE, 1));
 
         lootItems.add(new ItemStack(Material.BOW));
+        lootItems.add(new ItemStack(Material.CROSSBOW));
         lootItems.add(new ItemStack(Material.ARROW, 5));
         lootItems.add(new ItemStack(Material.ARROW, 10));
 
         lootItems.add(new ItemStack(Material.LEATHER_BOOTS));
-        lootItems.add(createItemStackWithEnchantment(Material.LEATHER_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.CHAINMAIL_BOOTS));
         lootItems.add(new ItemStack(Material.IRON_BOOTS));
-        lootItems.add(createItemStackWithEnchantment(Material.IRON_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.LEATHER_LEGGINGS));
-        lootItems.add(createItemStackWithEnchantment(Material.LEATHER_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.CHAINMAIL_LEGGINGS));
-        lootItems.add(createItemStackWithEnchantment(Material.CHAINMAIL_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.IRON_LEGGINGS));
         lootItems.add(new ItemStack(Material.LEATHER_CHESTPLATE));
-        lootItems.add(createItemStackWithEnchantment(Material.LEATHER_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
-        lootItems.add(createItemStackWithEnchantment(Material.CHAINMAIL_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.IRON_CHESTPLATE));
         lootItems.add(new ItemStack(Material.LEATHER_HELMET));
-        lootItems.add(createItemStackWithEnchantment(Material.LEATHER_HELMET, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.CHAINMAIL_HELMET));
         lootItems.add(new ItemStack(Material.IRON_HELMET));
-        lootItems.add(createItemStackWithEnchantment(Material.IRON_HELMET, Enchantment.PROTECTION_ENVIRONMENTAL, 2));
         lootItems.add(new ItemStack(Material.SHIELD));
 
         lootItems.add(new ItemStack(Material.COOKED_BEEF, 8));
@@ -143,10 +137,4 @@ public class settings {
         return lootItems;
     }
 
-    public ItemStack createItemStackWithEnchantment(Material item, Enchantment enchantment, Integer level){
-        ItemStack enchantedItem = new ItemStack(item);
-        enchantedItem.addEnchantment(enchantment, level);
-
-        return enchantedItem;
-    }
 }

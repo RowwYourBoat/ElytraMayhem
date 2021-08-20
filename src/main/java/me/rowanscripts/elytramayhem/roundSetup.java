@@ -6,6 +6,7 @@ import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +32,7 @@ public class roundSetup extends settings {
         World currentWorld = playerWhoStartedTheGame.getWorld();
         Location possibleLocation = new Location(currentWorld, randomX, currentWorld.getHighestBlockYAt(randomX, randomZ), randomZ);
 
-        if ((boolean) settingsData.get("findBiomeWithLand")){
+        if (settingsData.getBoolean("findBiomeWithLand")){
             if (possibleLocation.getBlock().getType() != Material.WATER)
                 borderLocation = possibleLocation;
             else
@@ -49,7 +50,7 @@ public class roundSetup extends settings {
 
         WorldBorder border = currentWorld.getWorldBorder();
         border.setCenter(borderLocation);
-        border.setSize((Integer) settingsData.get("borderSize"));
+        border.setSize(settingsData.getInt("borderSize"));
 
         Location aboveArenaTeleportLocation = new Location(currentWorld, borderLocation.getX(), 300, borderLocation.getZ(), 0, 90);
 
@@ -67,7 +68,7 @@ public class roundSetup extends settings {
         FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
 
         Inventory chestInventory = chest.getInventory();
-        int maxItemsInOneChest = (int) settingsData.get("maxItemsInOneChest");
+        int maxItemsInOneChest = settingsData.getInt("maxItemsInOneChest");
         List<?> lootItemsList = (List<?>) lootData.get("lootItems");
 
         Random random = new Random();
@@ -83,8 +84,21 @@ public class roundSetup extends settings {
                 }
             }
 
-            if(!itemAlreadyInChest)
+            if(!itemAlreadyInChest) {
+                if (lootData.getBoolean("Enchantments")){
+                    int chance = random.nextInt(5 - 1) + 1; // 20% enchantment chance
+                    if (chance == 1) {
+                        int enchantmentLevel = random.nextInt(3 - 1) + 1;
+                        if (randomItem.getType().name().toLowerCase().endsWith("boots") || randomItem.getType().name().toLowerCase().endsWith("leggings") || randomItem.getType().name().toLowerCase().endsWith("chestplate") || randomItem.getType().name().toLowerCase().endsWith("helmet"))
+                            randomItem.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, enchantmentLevel);
+                        else if (randomItem.getType().name().toLowerCase().endsWith("sword"))
+                            randomItem.addEnchantment(Enchantment.DAMAGE_ALL, enchantmentLevel);
+                        else if (randomItem.getType().name().equalsIgnoreCase("crossbow"))
+                            randomItem.addEnchantment(Enchantment.QUICK_CHARGE, enchantmentLevel);
+                    }
+                }
                 chestInventory.setItem(randomSlot, randomItem);
+            }
         }
     }
 
@@ -92,8 +106,8 @@ public class roundSetup extends settings {
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
-        int amountOfChests = (int) settingsData.get("amountOfChests");
-        int borderSize = (int) settingsData.get("borderSize");
+        int amountOfChests = settingsData.getInt("amountOfChests");
+        int borderSize = settingsData.getInt("borderSize");
 
         Random random = new Random();
         World currentWorld = playerWhoStartedTheGame.getWorld();
@@ -133,7 +147,7 @@ public class roundSetup extends settings {
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
         Random random = new Random();
         World currentWorld = player.getWorld();
-        int borderSize = (int) settingsData.get("borderSize");
+        int borderSize = settingsData.getInt("borderSize");
 
         int randomX = random.nextInt(((int) borderLocation.getX()+(borderSize/2)) - ((int) borderLocation.getX()-(borderSize/2))) + ((int) borderLocation.getX()+(borderSize/2));
         int randomZ = random.nextInt(((int) borderLocation.getZ()+(borderSize/2)) - ((int) borderLocation.getZ()-(borderSize/2))) + ((int) borderLocation.getZ()+(borderSize/2));
