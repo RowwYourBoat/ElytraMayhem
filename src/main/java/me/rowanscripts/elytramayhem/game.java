@@ -1,6 +1,8 @@
 package me.rowanscripts.elytramayhem;
 
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,15 +18,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class game extends roundSetup {
 
+    JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
+
     boolean setupInProgress = false;
     boolean gameInProgress = false;
-    int timeUntilStart = 10;
+    int timeUntilStart = 15;
 
     List<UUID> playersInGame = new ArrayList<>();
 
@@ -32,7 +37,9 @@ public class game extends roundSetup {
 
     public boolean startGame(Player executor) {
 
-        int amountOfChests = configuration.getInt("amountOfChests");
+        File f = new File(plugin.getDataFolder(), "settings.yml");
+        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
+        int amountOfChests = (Integer) settingsData.get("amountOfChests");
 
         Bukkit.getPluginManager().registerEvents(new eventListener(), JavaPlugin.getPlugin(Main.class));
         if (setupInProgress || gameInProgress)
@@ -43,6 +50,9 @@ public class game extends roundSetup {
             playersInGame.add(player.getUniqueId());
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(5);
         }
 
         Bukkit.broadcastMessage(ChatColor.GRAY + "Looking for an appropriate battle location..");
@@ -54,28 +64,15 @@ public class game extends roundSetup {
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully generated " + amountOfChests + " loot chests!");
         Bukkit.broadcastMessage(ChatColor.GRAY + "Finishing up..");
 
-        scheduler.scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Main.class), () -> {
-
-            for(Player player : Bukkit.getOnlinePlayers()) {
-                if(playersInGame.contains(player.getUniqueId()))
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 5, 1, false, false));
-                else
-                    player.setGameMode(GameMode.SPECTATOR);
-            }
-
-            if(playersInGame.size() == 1){
-                playerVictory();
-                endGame();
-            }
-        }, 0, 20);
-
         ItemStack elytra = new ItemStack(Material.ELYTRA);
+        ItemStack fireworks = new ItemStack(Material.FIREWORK_ROCKET, (Integer) settingsData.get("amountOfFireworksAtStart"));
         elytra.addEnchantment(Enchantment.DURABILITY, 3);
         for(Player player : Bukkit.getOnlinePlayers()){
             PlayerInventory playerInv = player.getInventory();
             this.teleportToRandomLocation(player);
             player.setGameMode(GameMode.SURVIVAL);
             playerInv.setChestplate(elytra);
+            playerInv.setItemInOffHand(fireworks);
         }
 
         scheduler.scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Main.class), () -> {
@@ -93,6 +90,18 @@ public class game extends roundSetup {
                     player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                 }
+            }
+
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                if(playersInGame.contains(player.getUniqueId()))
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 5, 1, false, false));
+                else
+                    player.setGameMode(GameMode.SPECTATOR);
+            }
+
+            if(playersInGame.size() == 1 && gameInProgress){
+                playerVictory();
+                endGame();
             }
 
         }, 0, 20);
@@ -116,17 +125,19 @@ public class game extends roundSetup {
         playersInGame.clear();
         setupInProgress = false;
         gameInProgress = false;
+        timeUntilStart = 15;
 
         for(Player player : Bukkit.getOnlinePlayers()){
             World currentWorld = player.getWorld();
-            player.setGameMode(GameMode.SURVIVAL);
+            player.getInventory().clear();
             player.teleport(currentWorld.getSpawnLocation());
+            player.setGameMode(GameMode.SURVIVAL);
         }
     }
 
     public class eventListener implements Listener {
 
-        @EventHandler(priority = EventPriority.HIGHEST)
+        @EventHandler(priority = EventPriority.LOW)
         public void blockPlayerMovementDuringSetup(PlayerMoveEvent event){
             if (setupInProgress)
                 event.setCancelled(true);
