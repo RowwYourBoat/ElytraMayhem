@@ -30,11 +30,13 @@ public class settings {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
                 settingsData.set("specialOccurrences", true); // toggles random weather and time events, like thunder & nighttime.
-                settingsData.set("battleRoyaleMode", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("amountOfFireworksAtStart", 3); // how many fireworks each player will receive at the start (limit: 64)
                 settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
                 settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
+                settingsData.createSection("battleRoyaleMode"); // section
+                settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
+                settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 defaultLootItems defaultLootItems = new defaultLootItems();

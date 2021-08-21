@@ -25,11 +25,12 @@ public class availableArguments {
 
         settingsArguments.add("findBiomeWithLand");
         settingsArguments.add("playersGlow");
-        settingsArguments.add("battleRoyaleMode");
         settingsArguments.add("amountOfFireworksAtStart");
         settingsArguments.add("borderSize");
         settingsArguments.add("maxItemsInOneChest");
         settingsArguments.add("amountOfChests");
+        settingsArguments.add("battleRoyaleMode.enabled");
+        settingsArguments.add("battleRoyaleMode.borderShrinkingDurationInSeconds");
         settingsArguments.add("reset");
 
         return settingsArguments;

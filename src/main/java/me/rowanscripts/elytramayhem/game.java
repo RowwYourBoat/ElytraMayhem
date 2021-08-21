@@ -46,7 +46,6 @@ public class game extends roundSetup {
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
         int amountOfChests = settingsData.getInt("amountOfChests");
 
-        Bukkit.getPluginManager().registerEvents(new eventListener(), JavaPlugin.getPlugin(Main.class));
         if (setupInProgress || gameInProgress)
             return false;
 
@@ -104,6 +103,11 @@ public class game extends roundSetup {
                     specialOccurrence = true;
                 setupInProgress = false;
                 gameInProgress = true;
+                if (settingsData.getBoolean("battleRoyaleMode.enabled")){
+                    WorldBorder border = currentWorld.getWorldBorder();
+                    border.setSize(1, settingsData.getLong("battleRoyaleMode.borderShrinkingDurationInSeconds"));
+                    border.setDamageBuffer(0);
+                }
                 for(Player player : Bukkit.getOnlinePlayers()){
                     if (!specialOccurrence) {
                         player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
@@ -163,9 +167,14 @@ public class game extends roundSetup {
             player.getInventory().clear();
             player.teleport(currentWorld.getSpawnLocation());
             player.setGameMode(GameMode.SURVIVAL);
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(5);
             currentWorld.setTime(1000);
             currentWorld.setThundering(false);
             currentWorld.setStorm(false);
+            WorldBorder border = currentWorld.getWorldBorder();
+            border.setSize(500);
         }
     }
 
