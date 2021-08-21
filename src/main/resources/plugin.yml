@@ -11,5 +11,3 @@ commands:
   battle:
     usage: /battle <start|stop|settings|reload>
     description: Manage the game
-    permission-message: Insufficient permissions!
-    permission: elytramayhem.battle

@@ -1,7 +1,7 @@
 package me.rowanscripts.elytramayhem;
 
+import me.rowanscripts.elytramayhem.getMethods.defaultLootItems;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -10,7 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class settings {
@@ -25,9 +24,7 @@ public class settings {
         FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
 
         if (args.length < 2)
-            executor.sendMessage("/battle settings <list|setting|reset> <set|get> <value>");
-        else if (args[1].equalsIgnoreCase("list"))
-            executor.sendMessage("findBiomeWithLand, playersGlow, battleRoyaleMode, amountOfFireworksAtStart, borderSize, maxItemsInOneChest, amountOfChests");
+            executor.sendMessage("/battle settings <setting|reset> <set|get> <value>");
         else if (args[1].equalsIgnoreCase("reset"))
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
@@ -39,10 +36,12 @@ public class settings {
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true. You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
-                List<ItemStack> lootItemsList = getDefaultLootItems();
+                defaultLootItems defaultLootItems = new defaultLootItems();
+                List<ItemStack> lootItemsList = defaultLootItems.getDefaultLootItems();
                 lootData.set("lootItems", lootItemsList);
                 settingsData.save(f);
                 lootData.save(lootFile);
+                executor.sendMessage(ChatColor.RED + "You've successfully reset all configuration files!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,49 +91,6 @@ public class settings {
         }
 
         return true;
-    }
-
-    public List<ItemStack> getDefaultLootItems(){
-        List<ItemStack> lootItems = new ArrayList<>();
-
-        lootItems.add(new ItemStack(Material.WOODEN_SWORD));
-        lootItems.add(new ItemStack(Material.STONE_SWORD));
-        lootItems.add(new ItemStack(Material.IRON_SWORD));
-
-        lootItems.add(new ItemStack(Material.WOODEN_AXE, 1));
-        lootItems.add(new ItemStack(Material.STONE_AXE, 1));
-
-        lootItems.add(new ItemStack(Material.BOW));
-        lootItems.add(new ItemStack(Material.CROSSBOW));
-        lootItems.add(new ItemStack(Material.ARROW, 5));
-        lootItems.add(new ItemStack(Material.ARROW, 10));
-
-        lootItems.add(new ItemStack(Material.LEATHER_BOOTS));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_BOOTS));
-        lootItems.add(new ItemStack(Material.IRON_BOOTS));
-        lootItems.add(new ItemStack(Material.LEATHER_LEGGINGS));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_LEGGINGS));
-        lootItems.add(new ItemStack(Material.IRON_LEGGINGS));
-        lootItems.add(new ItemStack(Material.LEATHER_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.IRON_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.LEATHER_HELMET));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_HELMET));
-        lootItems.add(new ItemStack(Material.IRON_HELMET));
-        lootItems.add(new ItemStack(Material.SHIELD));
-
-        lootItems.add(new ItemStack(Material.COOKED_BEEF, 8));
-        lootItems.add(new ItemStack(Material.BREAD, 16));
-        lootItems.add(new ItemStack(Material.COOKED_PORKCHOP, 8));
-        lootItems.add(new ItemStack(Material.GOLDEN_APPLE));
-
-        lootItems.add(new ItemStack(Material.ENDER_PEARL));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-
-
-        return lootItems;
     }
 
 }

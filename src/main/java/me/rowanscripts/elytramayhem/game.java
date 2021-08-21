@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -53,6 +54,8 @@ public class game extends roundSetup {
             player.setHealth(20);
             player.setFoodLevel(20);
             player.setSaturation(5);
+            playerData playerData = new playerData();
+            playerData.add(player, "Rounds");
         }
 
         Bukkit.broadcastMessage(ChatColor.GRAY + "Looking for an appropriate battle location..");
@@ -100,7 +103,7 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 2 && gameInProgress){
+            if(playersInGame.size() == 1 && gameInProgress){
                 playerVictory();
                 endGame();
             }
@@ -112,6 +115,8 @@ public class game extends roundSetup {
 
     public void playerVictory(){
         Player playerWhoWon = Bukkit.getPlayer(playersInGame.get(0));
+        playerData playerData = new playerData();
+        playerData.add(playerWhoWon, "Wins");
         for(Player player : Bukkit.getOnlinePlayers()){
             player.sendTitle(ChatColor.GOLD + ChatColor.BOLD.toString() + playerWhoWon.getName(), ChatColor.BOLD + "has won!", 10, 100, 10);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 10, 1);
@@ -122,10 +127,10 @@ public class game extends roundSetup {
         if (!gameInProgress && !setupInProgress)
             return;
 
-        scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
-        playersInGame.clear();
         setupInProgress = false;
         gameInProgress = false;
+        scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
+        playersInGame.clear();
         timeUntilStart = 15;
 
         for(Player player : Bukkit.getOnlinePlayers()){
@@ -146,9 +151,14 @@ public class game extends roundSetup {
 
         @EventHandler(priority = EventPriority.HIGHEST)
         public void removePlayerFromListAfterDeath(PlayerDeathEvent event){
-            Player player = event.getEntity();
+            Player playerWhoDied = event.getEntity();
+            Player playerWhoKilled = event.getEntity().getKiller();
             if (gameInProgress || setupInProgress){
-                playersInGame.remove(player.getUniqueId());
+                playerData playerData = new playerData();
+                playersInGame.remove(playerWhoDied.getUniqueId());
+                playerData.add(playerWhoDied, "Deaths");
+                if (playerWhoKilled != null)
+                    playerData.add(playerWhoKilled, "Kills");
             }
         }
 

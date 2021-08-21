@@ -1,13 +1,10 @@
 package me.rowanscripts.elytramayhem;
 
 import me.rowanscripts.elytramayhem.bStats.Metrics;
+import me.rowanscripts.elytramayhem.getMethods.defaultLootItems;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.*;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -30,7 +27,7 @@ public final class Main extends JavaPlugin {
         }
         defaultConfig();
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
-
+        Bukkit.getPluginCommand("battle").setTabCompleter(new ConstructTabComplete());
         int pluginId = 12514;
         Metrics metrics = new Metrics(this, pluginId);
     }
@@ -51,7 +48,8 @@ public final class Main extends JavaPlugin {
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true. You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
-                List<ItemStack> lootItemsList = getDefaultLootItems();
+                defaultLootItems defaultLootItems = new defaultLootItems();
+                List<ItemStack> lootItemsList = defaultLootItems.getDefaultLootItems();
                 lootData.set("lootItems", lootItemsList);
                 settingsData.save(settingsFile);
                 lootData.save(lootFile);
@@ -59,49 +57,6 @@ public final class Main extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-    }
-
-    public List<ItemStack> getDefaultLootItems(){
-        List<ItemStack> lootItems = new ArrayList<>();
-
-        lootItems.add(new ItemStack(Material.WOODEN_SWORD));
-        lootItems.add(new ItemStack(Material.STONE_SWORD));
-        lootItems.add(new ItemStack(Material.IRON_SWORD));
-
-        lootItems.add(new ItemStack(Material.WOODEN_AXE, 1));
-        lootItems.add(new ItemStack(Material.STONE_AXE, 1));
-
-        lootItems.add(new ItemStack(Material.BOW));
-        lootItems.add(new ItemStack(Material.CROSSBOW));
-        lootItems.add(new ItemStack(Material.ARROW, 5));
-        lootItems.add(new ItemStack(Material.ARROW, 10));
-
-        lootItems.add(new ItemStack(Material.LEATHER_BOOTS));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_BOOTS));
-        lootItems.add(new ItemStack(Material.IRON_BOOTS));
-        lootItems.add(new ItemStack(Material.LEATHER_LEGGINGS));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_LEGGINGS));
-        lootItems.add(new ItemStack(Material.IRON_LEGGINGS));
-        lootItems.add(new ItemStack(Material.LEATHER_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.IRON_CHESTPLATE));
-        lootItems.add(new ItemStack(Material.LEATHER_HELMET));
-        lootItems.add(new ItemStack(Material.CHAINMAIL_HELMET));
-        lootItems.add(new ItemStack(Material.IRON_HELMET));
-        lootItems.add(new ItemStack(Material.SHIELD));
-
-        lootItems.add(new ItemStack(Material.COOKED_BEEF, 8));
-        lootItems.add(new ItemStack(Material.BREAD, 16));
-        lootItems.add(new ItemStack(Material.COOKED_PORKCHOP, 8));
-        lootItems.add(new ItemStack(Material.GOLDEN_APPLE));
-
-        lootItems.add(new ItemStack(Material.ENDER_PEARL));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-        lootItems.add(new ItemStack(Material.FIREWORK_ROCKET));
-
-
-        return lootItems;
     }
 
     public class commands extends game implements CommandExecutor {
@@ -120,23 +75,45 @@ public final class Main extends JavaPlugin {
                 Player executor = (Player) sender;
                 String firstArgument = args[0];
 
-                if (firstArgument.equalsIgnoreCase("start")){
+                if (firstArgument.equalsIgnoreCase("start") && executor.hasPermission("elytramayhem.admin")){
                     boolean eligibleForStart = this.startGame(executor);
                     if (!eligibleForStart)
                         executor.sendMessage(ChatColor.RED + "Something went wrong!");
                     else
                         executor.sendMessage(ChatColor.GREEN + "Successfully started the game!");
-                } else if (firstArgument.equalsIgnoreCase("stop")){
+                } else if (firstArgument.equalsIgnoreCase("stop") && executor.hasPermission("elytramayhem.admin")){
                     this.endGame();
                     executor.sendMessage(ChatColor.RED + "You've forcefully ended the game!");
-                } else if (firstArgument.equalsIgnoreCase("settings")){
+                } else if (firstArgument.equalsIgnoreCase("settings") && executor.hasPermission("elytramayhem.admin")){
                     return this.settingsManager(executor, args);
-                } else if (firstArgument.equalsIgnoreCase("reload")){
+                } else if (firstArgument.equalsIgnoreCase("reload") && executor.hasPermission("elytramayhem.admin")) {
                     try {
                         settingsData.load(f);
                         executor.sendMessage(ChatColor.GREEN + "Successfully reloaded the configuration files!");
                     } catch (IOException | InvalidConfigurationException e) {
                         e.printStackTrace();
+                    }
+
+                } else if (firstArgument.equalsIgnoreCase("stats")) {
+                    playerData playerData = new playerData();
+                    if (args.length == 1) {
+                        executor.sendMessage(ChatColor.GOLD + ChatColor.BOLD.toString() + "Your Statistics:\n" + ChatColor.RESET + ChatColor.GRAY +
+                                "Wins: " + playerData.get(executor, "Wins") + "\n" +
+                                "Kills: " + playerData.get(executor, "Kills") + "\n" +
+                                "Deaths: " + playerData.get(executor, "Deaths") + "\n" +
+                                "Rounds: " + playerData.get(executor, "Rounds")
+                        );
+                    } else if (args.length == 2) {
+                        String playerName = args[1];
+                        Player playerToGetStatsFrom = Bukkit.getPlayer(playerName);
+                        if (playerToGetStatsFrom != null){
+                            executor.sendMessage(ChatColor.GOLD + ChatColor.BOLD.toString() + playerToGetStatsFrom.getName() + "'s Statistics:\n" + ChatColor.RESET + ChatColor.GRAY +
+                                    "Wins: " + playerData.get(playerToGetStatsFrom, "Wins") + "\n" +
+                                    "Kills: " + playerData.get(playerToGetStatsFrom, "Kills") + "\n" +
+                                    "Deaths: " + playerData.get(playerToGetStatsFrom, "Deaths") + "\n" +
+                                    "Rounds: " + playerData.get(playerToGetStatsFrom, "Rounds")
+                            );
+                        }
                     }
                 } else
                     return false;
@@ -146,6 +123,36 @@ public final class Main extends JavaPlugin {
             }
 
             return true;
+        }
+
+    }
+
+    public class ConstructTabComplete implements TabCompleter{
+
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+
+            availableArguments arguments = new availableArguments();
+
+            if (sender.hasPermission("elytramayhem.admin")){
+                if (args.length == 1){
+                    return arguments.getFirstAdminArguments();
+                } else if (args.length == 2 && args[0].equalsIgnoreCase("settings")){
+                    return arguments.getSettingArguments();
+                } else if (args.length == 3 && !args[1].equalsIgnoreCase("reset")) {
+                    return arguments.getSecondSettingArguments();
+                }
+            } else {
+                if (args.length == 1) {
+                    List<String> statsCmd = new ArrayList<>();
+                    statsCmd.add("stats");
+                    return statsCmd;
+                } else if (args.length == 2 && args[0].equalsIgnoreCase("stats")) {
+                    return arguments.getPlayerArguments();
+                }
+            }
+
+            return new ArrayList<>();
         }
 
     }
