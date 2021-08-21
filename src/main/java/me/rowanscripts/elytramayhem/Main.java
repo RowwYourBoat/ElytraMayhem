@@ -41,6 +41,7 @@ public final class Main extends JavaPlugin {
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
+                settingsData.set("specialOccurrences", true); // toggles random weather and time events, like thunder & nighttime.
                 settingsData.set("battleRoyaleMode", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("amountOfFireworksAtStart", 3); // how many fireworks each player will receive at the start (limit: 64)
                 settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
@@ -115,8 +116,11 @@ public final class Main extends JavaPlugin {
                             );
                         }
                     }
-                } else
-                    return false;
+                } else {
+                    executor.sendMessage(ChatColor.RED + "Invalid arguments or insufficient permissions!");
+                    return true;
+                }
+
 
             } else if (sender instanceof ConsoleCommandSender){
                 System.out.println(ChatColor.RED + "[Elytra Mayhem] This command may not be executed via the console!");
@@ -137,12 +141,15 @@ public final class Main extends JavaPlugin {
             if (sender.hasPermission("elytramayhem.admin")){
                 if (args.length == 1){
                     return arguments.getFirstAdminArguments();
+                } else if (args.length == 2 && args[0].equalsIgnoreCase("stats")) {
+                    return arguments.getPlayerArguments();
                 } else if (args.length == 2 && args[0].equalsIgnoreCase("settings")){
                     return arguments.getSettingArguments();
                 } else if (args.length == 3 && !args[1].equalsIgnoreCase("reset")) {
                     return arguments.getSecondSettingArguments();
                 }
             } else {
+                sender.sendMessage(args.length + args[0]);
                 if (args.length == 1) {
                     List<String> statsCmd = new ArrayList<>();
                     statsCmd.add("stats");

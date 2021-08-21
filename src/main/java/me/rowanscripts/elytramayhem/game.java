@@ -1,6 +1,7 @@
 package me.rowanscripts.elytramayhem;
 
 import org.bukkit.*;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -8,10 +9,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,6 +25,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class game extends roundSetup {
@@ -47,6 +51,11 @@ public class game extends roundSetup {
             return false;
 
         setupInProgress = true;
+        World currentWorld = executor.getWorld();
+        currentWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        currentWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        currentWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        currentWorld.setTime(1000);
         for(Player player : Bukkit.getOnlinePlayers()) {
             playersInGame.add(player.getUniqueId());
             player.getInventory().clear();
@@ -87,11 +96,25 @@ public class game extends roundSetup {
                 }
                 timeUntilStart--;
             } else if (timeUntilStart == 0 && !gameInProgress) {
+                Random random = new Random();
+                int randomValue = random.nextInt(25 - 1) + 1;
+
+                boolean specialOccurrence = false;
+                if (randomValue == 1 && settingsData.getBoolean("specialOccurrences"))
+                    specialOccurrence = true;
                 setupInProgress = false;
                 gameInProgress = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
-                    player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
+                    if (!specialOccurrence) {
+                        player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 5, 1);
+                    } else {
+                        player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "WEATHER EVENT ACTIVE", 5, 40, 5);
+                        player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                        currentWorld.setTime(18000);
+                        currentWorld.setStorm(true);
+                        currentWorld.setThundering(true);
+                    }
                 }
             }
 
@@ -103,8 +126,10 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 1 && gameInProgress){
+            if(playersInGame.size() == 2 && gameInProgress){
                 playerVictory();
+                endGame();
+            } else if (playersInGame.isEmpty()){
                 endGame();
             }
 
@@ -138,6 +163,9 @@ public class game extends roundSetup {
             player.getInventory().clear();
             player.teleport(currentWorld.getSpawnLocation());
             player.setGameMode(GameMode.SURVIVAL);
+            currentWorld.setTime(1000);
+            currentWorld.setThundering(false);
+            currentWorld.setStorm(false);
         }
     }
 
@@ -167,6 +195,33 @@ public class game extends roundSetup {
             Player player = event.getPlayer();
             if (gameInProgress || setupInProgress){
                 playersInGame.remove(player.getUniqueId());
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void stopPlayerFromBreakingChests(BlockBreakEvent event) {
+            if (!gameInProgress)
+                return;
+            Material blockType = event.getBlock().getType();
+            if (blockType == Material.SEA_LANTERN || blockType == Material.CHEST){
+                event.setCancelled(true);
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void bedrockOnChestOpen(InventoryOpenEvent event) {
+            if (!gameInProgress)
+                return;
+            InventoryHolder holder = event.getInventory().getHolder();
+            Player playerWhoOpenedTheChest = (Player) event.getPlayer();
+            if (holder instanceof Chest){
+                World currentWorld = playerWhoOpenedTheChest.getWorld();
+                Location chestLocation = ((Chest) holder).getLocation();
+                currentWorld.getBlockAt((int) chestLocation.getX(), (int) chestLocation.getY() - 1, (int) chestLocation.getZ()).setType(Material.BEDROCK);
+                currentWorld.getBlockAt((int) chestLocation.getX() + 1, (int) chestLocation.getY() - 1, (int) chestLocation.getZ()).setType(Material.BEDROCK);
+                currentWorld.getBlockAt((int) chestLocation.getX() - 1, (int) chestLocation.getY() - 1, (int) chestLocation.getZ()).setType(Material.BEDROCK);
+                currentWorld.getBlockAt((int) chestLocation.getX(), (int) chestLocation.getY() - 1, (int) chestLocation.getZ() + 1).setType(Material.BEDROCK);
+                currentWorld.getBlockAt((int) chestLocation.getX(), (int) chestLocation.getY() - 1, (int) chestLocation.getZ() - 1).setType(Material.BEDROCK);
             }
         }
 
