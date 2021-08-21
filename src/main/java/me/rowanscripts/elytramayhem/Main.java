@@ -48,7 +48,7 @@ public final class Main extends JavaPlugin {
                 settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
                 settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
                 lootData.set("Enchantments", true);
-                lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true. You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
+                lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 defaultLootItems defaultLootItems = new defaultLootItems();
                 List<ItemStack> lootItemsList = defaultLootItems.getDefaultLootItems();
                 lootData.set("lootItems", lootItemsList);
