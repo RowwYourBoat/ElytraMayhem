@@ -37,6 +37,7 @@ public class game extends roundSetup {
     boolean setupInProgress = false;
     boolean gameInProgress = false;
     AtomicBoolean specialOccurrence = new AtomicBoolean(false);
+    String specialOccurrenceType = null;
     int timeUntilStart = 15;
 
     List<UUID> playersInGame = new ArrayList<>();
@@ -55,6 +56,7 @@ public class game extends roundSetup {
         setupInProgress = true;
         World currentWorld = executor.getWorld();
         currentWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        currentWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         currentWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         currentWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         currentWorld.setTime(1000);
@@ -74,7 +76,8 @@ public class game extends roundSetup {
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully found an appropriate battle location!");
         this.teleportPlayersAboveLocation(executor);
         Bukkit.broadcastMessage(ChatColor.GRAY + "Generating loot chests..");
-        this.spawnLootChests(executor);
+        this.getSpecialOccurrence(settingsData);
+        this.spawnLootChests(executor, specialOccurrence, specialOccurrenceType);
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully generated " + amountOfChests + " loot chests!");
         Bukkit.broadcastMessage(ChatColor.GRAY + "Finishing up..");
 
@@ -98,9 +101,7 @@ public class game extends roundSetup {
                 }
                 timeUntilStart--;
             } else if (timeUntilStart == 0 && !gameInProgress) {
-                Random random = new Random();
-                int randomValue = random.nextInt(10 - 1) + 1;
-                specialOccurrence.set(randomValue == 1 && settingsData.getBoolean("specialOccurrences"));
+
                 setupInProgress = false;
                 gameInProgress = true;
                 if (settingsData.getBoolean("battleRoyaleMode.enabled")){
@@ -112,29 +113,39 @@ public class game extends roundSetup {
                     if (!specialOccurrence.get()) {
                         player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
                         player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 5, 1);
+                    } else if (specialOccurrence.get()) {
+                        switch (specialOccurrenceType) {
+                            case "DoubleHP":
+                                currentWorld.setTime(18000);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "DOUBLE HEALTH EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
+                                player.setHealth(40);
+                                break;
+                            case "HalfHP":
+                                currentWorld.setTime(18000);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "HALF HEALTH EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(10);
+                                player.setHealth(10);
+                                break;
+                            case "Thunder":
+                                currentWorld.setTime(18000);
+                                currentWorld.setStorm(true);
+                                currentWorld.setThundering(true);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "SPECIAL WEATHER EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                break;
+                            case "OPLoot":
+                                // handled during loot generation
+                                currentWorld.setTime(18000);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "OP LOOT EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                break;
+                        }
                     }
                 }
 
-                if (specialOccurrence.get()){
-                    int occurrenceNumber = random.nextInt(3) + 1;
-                    if (occurrenceNumber == 1) {
-                        currentWorld.setTime(18000);
-                        currentWorld.setStorm(true);
-                        currentWorld.setThundering(true);
-                        for(Player player : Bukkit.getOnlinePlayers()){
-                            player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "SPECIAL WEATHER EVENT", 5, 40, 5);
-                            player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
-                        }
-                    } else if (occurrenceNumber == 2) {
-                        currentWorld.setTime(18000);
-                        for(Player player : Bukkit.getOnlinePlayers()){
-                            player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "DOUBLE HEALTH EVENT", 5, 40, 5);
-                            player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
-                            player.setHealth(40);
-                        }
-                    }
-                }
             }
 
             for(Player player : Bukkit.getOnlinePlayers()) {
@@ -145,7 +156,7 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 1 && gameInProgress){
+            if(playersInGame.size() == 2 && gameInProgress){
                 playerVictory();
                 endGame();
             } else if (playersInGame.isEmpty()){
@@ -174,6 +185,7 @@ public class game extends roundSetup {
         setupInProgress = false;
         gameInProgress = false;
         specialOccurrence.set(false);
+        specialOccurrenceType = null;
         scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
         playersInGame.clear();
         timeUntilStart = 15;
@@ -183,7 +195,6 @@ public class game extends roundSetup {
             player.getInventory().clear();
             player.teleport(currentWorld.getSpawnLocation());
             player.setGameMode(GameMode.SURVIVAL);
-            player.setHealth(20);
             player.setFoodLevel(20);
             player.setSaturation(5);
             player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
@@ -194,6 +205,26 @@ public class game extends roundSetup {
             WorldBorder border = currentWorld.getWorldBorder();
             border.setSize(500);
         }
+    }
+
+    public void getSpecialOccurrence(FileConfiguration settingsData) {
+        Random random = new Random();
+        int randomValue = 1; //random.nextInt(11 - 1) + 1;
+        specialOccurrence.set(randomValue == 1 && settingsData.getBoolean("specialOccurrences"));
+
+        if (specialOccurrence.get()){
+            int occurrenceNumber = random.nextInt(5 - 1) + 1;
+            if (occurrenceNumber == 1) {
+                specialOccurrenceType = "Thunder";
+            } else if (occurrenceNumber == 2) {
+                specialOccurrenceType = "DoubleHP";
+            } else if (occurrenceNumber == 3) {
+                specialOccurrenceType = "HalfHP";
+            } else {
+                specialOccurrenceType = "OPLoot";
+            }
+        }
+
     }
 
     public class eventListener implements Listener {

@@ -12,20 +12,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class settings {
+public class Settings {
 
     JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
 
-    public boolean settingsManager(Player executor, String[] args){
+    public void defaultConfig(Boolean forced){
 
         File settingsFile = new File(plugin.getDataFolder(), "settings.yml");
-        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
         File lootFile = new File(plugin.getDataFolder(), "loot.yml");
+        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
         FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
 
-        if (args.length < 2)
-            executor.sendMessage("/battle settings <setting|reset> <set|get> <value>");
-        else if (args[1].equalsIgnoreCase("reset"))
+        if (!settingsFile.exists() || !lootFile.exists() || forced) {
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
@@ -37,7 +35,7 @@ public class settings {
                 settingsData.createSection("battleRoyaleMode"); // section
                 settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
-                settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem/blob/master/README.md");
+                settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem#settings--configuration");
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 defaultLootItems defaultLootItems = new defaultLootItems();
@@ -45,10 +43,25 @@ public class settings {
                 lootData.set("lootItems", lootItemsList);
                 settingsData.save(settingsFile);
                 lootData.save(lootFile);
-                executor.sendMessage(ChatColor.RED + "You've successfully reset all configuration files!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public boolean settingsManager(Player executor, String[] args){
+
+        File settingsFile = new File(plugin.getDataFolder(), "settings.yml");
+        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
+        File lootFile = new File(plugin.getDataFolder(), "loot.yml");
+        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
+
+        if (args.length < 2)
+            executor.sendMessage("/battle settings <setting|reset> <set|get> <value>");
+        else if (args[1].equalsIgnoreCase("reset")) {
+            defaultConfig(true);
+            executor.sendMessage(ChatColor.GREEN + "Successfully reset all configuration files! (settings.yml & loot.yml)");
+        }
         else if (settingsData.contains(args[1])){
             if (args.length < 3) {
                 executor.sendMessage("/battle settings <list|setting> <set|get> <value>");

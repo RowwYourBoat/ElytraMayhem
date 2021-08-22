@@ -15,8 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class roundSetup extends settings {
+public class roundSetup extends Settings {
 
     Location borderLocation = null;
     JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
@@ -59,7 +60,7 @@ public class roundSetup extends settings {
 
     }
 
-    public void fillLootChest(Chest chest){
+    public void fillLootChest(Chest chest, AtomicBoolean specialOccurrence, String specialOccurrenceType){
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
@@ -85,7 +86,16 @@ public class roundSetup extends settings {
             }
 
             if(!itemAlreadyInChest) {
-                if (lootData.getBoolean("Enchantments")){
+                if (specialOccurrence.get() && specialOccurrenceType.equals("OPLoot")){
+                    if (randomItem.getType().name().toLowerCase().endsWith("boots") || randomItem.getType().name().toLowerCase().endsWith("leggings") || randomItem.getType().name().toLowerCase().endsWith("chestplate") || randomItem.getType().name().toLowerCase().endsWith("helmet"))
+                        randomItem.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+                    else if (randomItem.getType().name().toLowerCase().endsWith("sword"))
+                        randomItem.addEnchantment(Enchantment.DAMAGE_ALL, 5);
+                    else if (randomItem.getType().name().equalsIgnoreCase("crossbow"))
+                        randomItem.addEnchantment(Enchantment.QUICK_CHARGE, 3);
+                    else if (randomItem.getType().name().equalsIgnoreCase("bow"))
+                        randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, 5);
+                } else if (lootData.getBoolean("Enchantments")){
                     int chance = random.nextInt(5 - 1) + 1; // 20% enchantment chance
                     if (chance == 1) {
                         int enchantmentLevel = random.nextInt(3 - 1) + 1;
@@ -95,6 +105,8 @@ public class roundSetup extends settings {
                             randomItem.addEnchantment(Enchantment.DAMAGE_ALL, enchantmentLevel);
                         else if (randomItem.getType().name().equalsIgnoreCase("crossbow"))
                             randomItem.addEnchantment(Enchantment.QUICK_CHARGE, enchantmentLevel);
+                        else if (randomItem.getType().name().equalsIgnoreCase("bow"))
+                            randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, enchantmentLevel);
                     }
                 }
                 chestInventory.setItem(randomSlot, randomItem);
@@ -102,7 +114,7 @@ public class roundSetup extends settings {
         }
     }
 
-    public void spawnLootChests(Player playerWhoStartedTheGame) {
+    public void spawnLootChests(Player playerWhoStartedTheGame, AtomicBoolean specialOccurrence, String specialOccurrenceType) {
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
@@ -132,7 +144,7 @@ public class roundSetup extends settings {
                     currentWorld.getBlockAt(underChestX + x, underChestY, underChestZ - 2).setType(Material.SEA_LANTERN);
                 }
 
-                fillLootChest((Chest) currentWorld.getBlockAt(chestLocation).getState());
+                fillLootChest((Chest) currentWorld.getBlockAt(chestLocation).getState(), specialOccurrence, specialOccurrenceType);
                 for (Player player : Bukkit.getOnlinePlayers())
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Generating Loot Chests: " + i + "/" + amountOfChests));
 

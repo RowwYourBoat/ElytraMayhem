@@ -25,43 +25,12 @@ public final class Main extends JavaPlugin {
             getLogger().info(ChatColor.RED + "You need to allow flight in your server.properties file for this plugin to work! The plugin has been disabled automatically!");
             getPluginLoader().disablePlugin(this);
         }
-        defaultConfig();
+        Settings settings = new Settings();
+        settings.defaultConfig(false);
         Bukkit.getPluginCommand("battle").setExecutor(new commands());
         Bukkit.getPluginCommand("battle").setTabCompleter(new ConstructTabComplete());
-
         int pluginId = 12514;
         Metrics metrics = new Metrics(this, pluginId);
-    }
-
-    public void defaultConfig(){
-        File settingsFile = new File(this.getDataFolder(), "settings.yml");
-        File lootFile = new File(this.getDataFolder(), "loot.yml");
-        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
-        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
-        if (!settingsFile.exists() || !lootFile.exists()) {
-            try {
-                settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
-                settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
-                settingsData.set("specialOccurrences", true); // toggles random weather and time events, like thunder & nighttime.
-                settingsData.set("amountOfFireworksAtStart", 3); // how many fireworks each player will receive at the start (limit: 64)
-                settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
-                settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
-                settingsData.set("amountOfChests", 10); // the amount of loot chests that will spawn (limit: 50)
-                settingsData.createSection("battleRoyaleMode"); // section
-                settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
-                settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
-                settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem/blob/master/README.md");
-                lootData.set("Enchantments", true);
-                lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
-                defaultLootItems defaultLootItems = new defaultLootItems();
-                List<ItemStack> lootItemsList = defaultLootItems.getDefaultLootItems();
-                lootData.set("lootItems", lootItemsList);
-                settingsData.save(settingsFile);
-                lootData.save(lootFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public class commands extends game implements CommandExecutor {
