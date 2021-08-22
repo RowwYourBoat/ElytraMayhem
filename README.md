@@ -8,12 +8,26 @@ This is a Minigame Plugin, where all players will be teleported to a random loca
 
 /battle stop (elytramayhem.admin) - Stops the current round
 
-/battle settings <setting|reset> <get|set> <value> (elytramayhem.admin)  - Configures the plugin's settings.yml file
+/battle settings [setting|reset] [get|set] [value] (elytramayhem.admin)  - Configures the plugin's settings.yml file
   
 /battle reload (elytramayhem.admin) - Reloads the configuration file
+  
+/battle stats [player] (no permission required) - Displays your or someone else's statistics
 
 ### In-game configuration
 You're able to configure the whole plugin in-game using the /battle settings command, apart from the loot chests.
+
+### Automatic Battle Location
+The plugin will look for a battle location within 1 million blocks, meaning you will always have a different experience. If the setting "findBiomeWithLand" is true, the plugin will ignore landless oceans.
+
+### Loot Chests
+Up to 50 (default: 10) loot chests will spawn within the world border with randomly generated loot.
+
+### Special Occurrences
+There is a 10% chance that a random event will take place (Double HP, Thunder). This may be turned off if you wish!
+
+### Battle Royale Mode
+If Battle Royale Mode is on (default: off), the border will shrink slowly towards the middle of the battle area, until it reaches a size of one. You're able to configure the size of the border and the speed of which it shrinks.
 
 ## How to get started
 Once you've gathered a few friends to play with (a minimum of 3 players is recommended), you can run the command /battle start. The plugin will then look for a battle location (with at least some land and not only water) and generate the loot chests. Once this process is completed (it may take some time depending on the configured settings), every player will spawn at a random location within the world border with an elytra with some fireworks so that they can loot the chests and fight!
@@ -40,3 +54,6 @@ battleRoyaleMode: - Determines whether the border will shrink over time.
   borderShrinkingDurationInSeconds - How long it takes for the border to reach the size of 1
 
 To reset all config files, you can use the command **/battle settings reset**.
+
+## Additional Information
+If you configure the settings from within the game, there will be limits to what value you can enter. If you decide to ignore these limits by editing the settings.yml file yourself and the plugin breaks because of it, I am not responsible.
