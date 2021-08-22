@@ -58,6 +58,8 @@ If you configure the settings from within the game, there will be limits to what
 
 Make sure you clear the world data every once in a while if you plan on using this plugin for a long time, so that your storage doesn't get filled up due to all of the chunks that need to be loaded in each new round.
 
+This plugin uses bStats so that I can keep track of how many people are using my plugin. More information here: https://bstats.org/
+
 This is my 3rd and largest plugin, so if my code is not the best, I'm sorry.
 
 **If you run into any issues/have any questions, please contact me on discord: Rowan#8309**
