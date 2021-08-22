@@ -49,13 +49,15 @@ maxItemsInOneChest - The maximum amount of items in one chest. (limit: 27)
 
 amountOfChests - The amount of loot chests that will spawn. (limit: 30)
 
-battleRoyaleMode: - Determines whether the border will shrink over time.
-  enabled - Toggles battle royale mode
-  borderShrinkingDurationInSeconds - How long it takes for the border to reach the size of 1
+battleRoyaleMode - Determines whether the border will shrink over time.
 
 To reset all config files, you can use the command **/battle settings reset**.
 
 ## Additional Information
 If you configure the settings from within the game, there will be limits to what value you can enter. If you decide to ignore these limits by editing the settings.yml file yourself and the plugin breaks because of it, I am not responsible.
 
+Make sure you clear the world data every once in a while if you plan on using this plugin for a long time, so that your storage doesn't get filled up due to all of the chunks that need to be loaded in each new round.
+
 This is my 3rd and largest plugin, so if my code is not the best, I'm sorry.
+
+**If you run into any issues/have any questions, please contact me on discord: Rowan#8309**
