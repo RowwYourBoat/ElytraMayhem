@@ -57,3 +57,5 @@ To reset all config files, you can use the command **/battle settings reset**.
 
 ## Additional Information
 If you configure the settings from within the game, there will be limits to what value you can enter. If you decide to ignore these limits by editing the settings.yml file yourself and the plugin breaks because of it, I am not responsible.
+
+This is my 3rd and largest plugin, so if my code is not the best, I'm sorry.
