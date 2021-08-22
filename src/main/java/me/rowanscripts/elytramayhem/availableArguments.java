@@ -25,6 +25,7 @@ public class availableArguments {
 
         settingsArguments.add("findBiomeWithLand");
         settingsArguments.add("playersGlow");
+        settingsArguments.add("specialOccurrences");
         settingsArguments.add("amountOfFireworksAtStart");
         settingsArguments.add("borderSize");
         settingsArguments.add("maxItemsInOneChest");

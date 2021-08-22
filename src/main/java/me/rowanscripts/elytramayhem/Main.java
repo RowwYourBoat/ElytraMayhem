@@ -1,7 +1,7 @@
 package me.rowanscripts.elytramayhem;
 
-import me.rowanscripts.elytramayhem.bStats.Metrics;
 import me.rowanscripts.elytramayhem.getMethods.defaultLootItems;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
@@ -50,6 +50,7 @@ public final class Main extends JavaPlugin {
                 settingsData.createSection("battleRoyaleMode"); // section
                 settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
+                settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem/blob/master/README.md");
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 defaultLootItems defaultLootItems = new defaultLootItems();

@@ -37,6 +37,7 @@ public class settings {
                 settingsData.createSection("battleRoyaleMode"); // section
                 settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
+                settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem/blob/master/README.md");
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");
                 defaultLootItems defaultLootItems = new defaultLootItems();
@@ -78,7 +79,11 @@ public class settings {
                     if (value.equals("false") || value.equals("true")) {
                         executor.sendMessage(ChatColor.RED + "Invalid input!");
                         return true;
+                    } else if (!isValueWithinBounds(setting, Integer.parseInt(value))) {
+                        executor.sendMessage(ChatColor.RED + "Input out of bounds!");
+                        return true;
                     }
+
                     settingsData.set(setting, Integer.parseInt(value));
                 }
 
@@ -94,6 +99,20 @@ public class settings {
         }
 
         return true;
+    }
+
+    public boolean isValueWithinBounds(String setting, Integer value) {
+
+        if (setting.equals("borderSize") && (value < 100 || value > 500))
+            return false;
+        else if (setting.equals("amountOfFireworksAtStart") && (value > 64))
+            return false;
+        else if (setting.equals("maxItemsInOneChest") && (value > 27))
+            return false;
+        else if (setting.equals("amountOfChests") && (value > 50))
+            return false;
+        else return value > 0;
+
     }
 
 }

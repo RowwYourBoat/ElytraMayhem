@@ -1,6 +1,7 @@
 package me.rowanscripts.elytramayhem;
 
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class game extends roundSetup {
 
@@ -34,6 +36,7 @@ public class game extends roundSetup {
 
     boolean setupInProgress = false;
     boolean gameInProgress = false;
+    AtomicBoolean specialOccurrence = new AtomicBoolean(false);
     int timeUntilStart = 15;
 
     List<UUID> playersInGame = new ArrayList<>();
@@ -96,11 +99,8 @@ public class game extends roundSetup {
                 timeUntilStart--;
             } else if (timeUntilStart == 0 && !gameInProgress) {
                 Random random = new Random();
-                int randomValue = random.nextInt(25 - 1) + 1;
-
-                boolean specialOccurrence = false;
-                if (randomValue == 1 && settingsData.getBoolean("specialOccurrences"))
-                    specialOccurrence = true;
+                int randomValue = random.nextInt(10 - 1) + 1;
+                specialOccurrence.set(randomValue == 1 && settingsData.getBoolean("specialOccurrences"));
                 setupInProgress = false;
                 gameInProgress = true;
                 if (settingsData.getBoolean("battleRoyaleMode.enabled")){
@@ -109,15 +109,30 @@ public class game extends roundSetup {
                     border.setDamageBuffer(0);
                 }
                 for(Player player : Bukkit.getOnlinePlayers()){
-                    if (!specialOccurrence) {
+                    if (!specialOccurrence.get()) {
                         player.sendTitle(ChatColor.RED + "FIGHT!", "", 5, 20, 5);
                         player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 5, 1);
-                    } else {
-                        player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "WEATHER EVENT ACTIVE", 5, 40, 5);
-                        player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                    }
+                }
+
+                if (specialOccurrence.get()){
+                    int occurrenceNumber = random.nextInt(3) + 1;
+                    if (occurrenceNumber == 1) {
                         currentWorld.setTime(18000);
                         currentWorld.setStorm(true);
                         currentWorld.setThundering(true);
+                        for(Player player : Bukkit.getOnlinePlayers()){
+                            player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "SPECIAL WEATHER EVENT", 5, 40, 5);
+                            player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                        }
+                    } else if (occurrenceNumber == 2) {
+                        currentWorld.setTime(18000);
+                        for(Player player : Bukkit.getOnlinePlayers()){
+                            player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "DOUBLE HEALTH EVENT", 5, 40, 5);
+                            player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
+                            player.setHealth(40);
+                        }
                     }
                 }
             }
@@ -130,7 +145,7 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 2 && gameInProgress){
+            if(playersInGame.size() == 1 && gameInProgress){
                 playerVictory();
                 endGame();
             } else if (playersInGame.isEmpty()){
@@ -158,6 +173,7 @@ public class game extends roundSetup {
 
         setupInProgress = false;
         gameInProgress = false;
+        specialOccurrence.set(false);
         scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
         playersInGame.clear();
         timeUntilStart = 15;
@@ -170,6 +186,8 @@ public class game extends roundSetup {
             player.setHealth(20);
             player.setFoodLevel(20);
             player.setSaturation(5);
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+            player.setHealth(20);
             currentWorld.setTime(1000);
             currentWorld.setThundering(false);
             currentWorld.setStorm(false);
