@@ -6,7 +6,7 @@
 
     <groupId>me.rowanscripts</groupId>
     <artifactId>ElytraMayhem</artifactId>
-    <version>0.9</version>
+    <version>V1.0.0-MC1.17</version>
     <packaging>jar</packaging>
 
     <name>ElytraMayhem</name>

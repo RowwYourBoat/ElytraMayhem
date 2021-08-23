@@ -156,7 +156,7 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 2 && gameInProgress){
+            if(playersInGame.size() == 1 && gameInProgress){
                 playerVictory();
                 endGame();
             } else if (playersInGame.isEmpty()){
@@ -209,7 +209,7 @@ public class game extends roundSetup {
 
     public void getSpecialOccurrence(FileConfiguration settingsData) {
         Random random = new Random();
-        int randomValue = 1; //random.nextInt(11 - 1) + 1;
+        int randomValue = random.nextInt(11 - 1) + 1;
         specialOccurrence.set(randomValue == 1 && settingsData.getBoolean("specialOccurrences"));
 
         if (specialOccurrence.get()){
