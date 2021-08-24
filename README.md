@@ -62,4 +62,6 @@ This plugin uses bStats so that I can keep track of how many people are using my
 
 This is my 3rd and largest plugin, so if my code is not the best, I'm sorry.
 
+
 **If you run into any issues/have any questions, please contact me on discord: Rowan#8309**
+Make sure to check the console for any potential errors first!
