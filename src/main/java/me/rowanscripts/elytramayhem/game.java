@@ -182,6 +182,9 @@ public class game extends roundSetup {
         if (!gameInProgress && !setupInProgress)
             return;
 
+        File f = new File(plugin.getDataFolder(), "settings.yml");
+        FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
+
         setupInProgress = false;
         gameInProgress = false;
         specialOccurrence.set(false);
@@ -203,7 +206,7 @@ public class game extends roundSetup {
             currentWorld.setThundering(false);
             currentWorld.setStorm(false);
             WorldBorder border = currentWorld.getWorldBorder();
-            border.setSize(500);
+            border.setSize(settingsData.getInt("borderSize"));
         }
     }
 
