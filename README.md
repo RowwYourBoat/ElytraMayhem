@@ -35,21 +35,7 @@ Once you've gathered a few friends to play with (a minimum of 3 players is recom
 ## Settings / Configuration
 You're able to configure the settings in-game with the command /battle settings or via the settings.yml file. **Keep in mind that you aren't able to configure the loot chests with commands.** The configurable settings are:
 
-findBiomeWithLand - Determine whether you want the plugin to look for a biome with at least some land or not. Disabling this may reduce the duration of the setup process.
-
-playersGlow - Determines whether players will glow during a round.
-
-specialOccurrences - Determines whether special events will take place (double health, thunder). There's a 10% chance one will take place when enabled.
-
-amountOfFireworksAtStart - How many fireworks each player will receive at the start. (limit: 64)
-
-borderSize - The size of the border. (minimum: 100, limit: 500)
-
-maxItemsInOneChest - The maximum amount of items in one chest. (limit: 27)
-
-amountOfChests - The amount of loot chests that will spawn. (limit: 30)
-
-battleRoyaleMode - Determines whether the border will shrink over time.
+![image](https://user-images.githubusercontent.com/75913945/130791885-f7ddae4e-b2a8-4fc5-830a-3ba4079572f6.png)
 
 To reset all config files, you can use the command **/battle settings reset**.
 
