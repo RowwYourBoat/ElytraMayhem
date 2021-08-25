@@ -79,6 +79,8 @@ public class game extends roundSetup {
             playerData.add(player, "Rounds");
         }
 
+        timeUntilStart = settingsData.getInt("countdownDuration");
+
         Bukkit.broadcastMessage(ChatColor.GRAY + "Looking for an appropriate battle location..");
         this.findPossibleBorderLocation(executor);
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfully found an appropriate battle location!");
@@ -210,7 +212,6 @@ public class game extends roundSetup {
         specialOccurrenceType = null;
         scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
         playersInGame.clear();
-        timeUntilStart = 15;
 
         currentWorld.setTime(1000);
         currentWorld.setThundering(false);

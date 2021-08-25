@@ -98,7 +98,7 @@ public class roundSetup extends Settings {
                         randomItem.addEnchantment(Enchantment.QUICK_CHARGE, 3);
                     else if (randomItem.getType().name().equalsIgnoreCase("bow"))
                         randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, 5);
-                } else if (lootData.getBoolean("Enchantments") && !specialOccurrenceType.equals("OnlyCrossbow")){
+                } else if (lootData.getBoolean("Enchantments") && (specialOccurrence.get() && !specialOccurrenceType.equals("OnlyCrossbow"))){
                     int chance = random.nextInt(5 - 1) + 1; // 20% enchantment chance
                     if (chance == 1) {
                         int enchantmentLevel = random.nextInt(3 - 1) + 1;
@@ -111,7 +111,7 @@ public class roundSetup extends Settings {
                         else if (randomItem.getType().name().equalsIgnoreCase("bow"))
                             randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, enchantmentLevel);
                     }
-                } else if (specialOccurrenceType.equals("OnlyCrossbow")){
+                } else if (specialOccurrence.get() && specialOccurrenceType.equals("OnlyCrossbow")){
                     if (randomItem.getType().name().toLowerCase().endsWith("sword"))
                         randomItem = defaultLootItems.newFirework(new ItemStack(Material.FIREWORK_ROCKET, 5), ChatColor.RED + "Crossbow Ammo", 2, FireworkEffect.builder().flicker(true).trail(true).withColor(Color.RED, Color.WHITE, Color.BLUE).build());
                     else if (randomItem.getType().name().equalsIgnoreCase("crossbow")) {
