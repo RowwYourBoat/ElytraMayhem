@@ -1,5 +1,6 @@
 package me.rowanscripts.elytramayhem;
 
+import me.rowanscripts.elytramayhem.getMethods.defaultLootItems;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -85,6 +86,8 @@ public class roundSetup extends Settings {
                 }
             }
 
+            defaultLootItems defaultLootItems = new defaultLootItems();
+
             if(!itemAlreadyInChest) {
                 if (specialOccurrence.get() && specialOccurrenceType.equals("OPLoot")){
                     if (randomItem.getType().name().toLowerCase().endsWith("boots") || randomItem.getType().name().toLowerCase().endsWith("leggings") || randomItem.getType().name().toLowerCase().endsWith("chestplate") || randomItem.getType().name().toLowerCase().endsWith("helmet"))
@@ -95,7 +98,7 @@ public class roundSetup extends Settings {
                         randomItem.addEnchantment(Enchantment.QUICK_CHARGE, 3);
                     else if (randomItem.getType().name().equalsIgnoreCase("bow"))
                         randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, 5);
-                } else if (lootData.getBoolean("Enchantments")){
+                } else if (lootData.getBoolean("Enchantments") && !specialOccurrenceType.equals("OnlyCrossbow")){
                     int chance = random.nextInt(5 - 1) + 1; // 20% enchantment chance
                     if (chance == 1) {
                         int enchantmentLevel = random.nextInt(3 - 1) + 1;
@@ -108,6 +111,19 @@ public class roundSetup extends Settings {
                         else if (randomItem.getType().name().equalsIgnoreCase("bow"))
                             randomItem.addEnchantment(Enchantment.ARROW_DAMAGE, enchantmentLevel);
                     }
+                } else if (specialOccurrenceType.equals("OnlyCrossbow")){
+                    if (randomItem.getType().name().toLowerCase().endsWith("sword"))
+                        randomItem = defaultLootItems.newFirework(new ItemStack(Material.FIREWORK_ROCKET, 5), ChatColor.RED + "Crossbow Ammo", 2, FireworkEffect.builder().flicker(true).trail(true).withColor(Color.RED, Color.WHITE, Color.BLUE).build());
+                    else if (randomItem.getType().name().equalsIgnoreCase("crossbow")) {
+                        randomItem = new ItemStack(Material.CROSSBOW);
+                        randomItem.addEnchantment(Enchantment.QUICK_CHARGE, 3);
+                        randomItem.addEnchantment(Enchantment.MULTISHOT, 1);
+                    } else if (randomItem.getType().name().toLowerCase().endsWith("axe")) {
+                        randomItem = new ItemStack(Material.CROSSBOW);
+                        randomItem.addEnchantment(Enchantment.QUICK_CHARGE, 3);
+                        randomItem.addEnchantment(Enchantment.MULTISHOT, 1);
+                    } else if (randomItem.getType().name().equalsIgnoreCase("bow"))
+                        randomItem = defaultLootItems.newFirework(new ItemStack(Material.FIREWORK_ROCKET, 5), ChatColor.RED + "Crossbow Ammo", 2, FireworkEffect.builder().flicker(true).trail(true).withColor(Color.RED, Color.WHITE, Color.BLUE).build());
                 }
                 chestInventory.setItem(randomSlot, randomItem);
             }

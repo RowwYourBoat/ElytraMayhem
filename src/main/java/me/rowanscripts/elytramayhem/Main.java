@@ -22,6 +22,7 @@ public final class Main extends JavaPlugin {
         if (!getServer().getAllowFlight()){
             getLogger().info(ChatColor.RED + "You need to allow flight in your server.properties file for this plugin to work! The plugin has been disabled automatically!");
             getPluginLoader().disablePlugin(this);
+            return;
         }
         Settings settings = new Settings();
         settings.defaultConfig(false);
@@ -60,7 +61,7 @@ public final class Main extends JavaPlugin {
                     else
                         executor.sendMessage(ChatColor.GREEN + "Successfully started the game!");
                 } else if (firstArgument.equalsIgnoreCase("stop") && executor.hasPermission("elytramayhem.admin")){
-                    this.endGame();
+                    this.endGame(executor.getWorld());
                     executor.sendMessage(ChatColor.RED + "You've forcefully ended the game!");
                 } else if (firstArgument.equalsIgnoreCase("settings") && executor.hasPermission("elytramayhem.admin")){
                     return this.settingsManager(executor, args);

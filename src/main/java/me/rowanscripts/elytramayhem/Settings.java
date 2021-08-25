@@ -27,7 +27,6 @@ public class Settings {
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
-                settingsData.set("specialOccurrences", true); // toggles random weather and time events, like thunder & nighttime.
                 settingsData.set("amountOfFireworksAtStart", 3); // how many fireworks each player will receive at the start (limit: 64)
                 settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
                 settingsData.set("maxItemsInOneChest", 5); // the maximum amount of items in one chest (limit: 27)
@@ -35,6 +34,18 @@ public class Settings {
                 settingsData.createSection("battleRoyaleMode"); // section
                 settingsData.set("battleRoyaleMode.enabled", false); // toggles battle royale mode, where the border shrinks
                 settingsData.set("battleRoyaleMode.borderShrinkingDurationInSeconds", 300); // how long it takes for the border to shrink all the way
+
+                settingsData.createSection("specialOccurrences");
+                settingsData.set("specialOccurrences.enabled", true); // toggles special occurrences
+                settingsData.set("specialOccurrences.everyRound", false); // determines whether a special event will take place every round
+                settingsData.createSection("specialOccurrences.occurrences");
+                settingsData.set("specialOccurrences.occurrences.Thunder", true);
+                settingsData.set("specialOccurrences.occurrences.DoubleHP", true);
+                settingsData.set("specialOccurrences.occurrences.HalfHP", true);
+                settingsData.set("specialOccurrences.occurrences.OPLoot", true);
+                settingsData.set("specialOccurrences.occurrences.SlowFalling", true);
+                settingsData.set("specialOccurrences.occurrences.OnlyCrossbow", true);
+
                 settingsData.options().header("Visit the following website for information:\nhttps://github.com/icallhacks/ElytraMayhem#settings--configuration");
                 lootData.set("Enchantments", true);
                 lootData.options().header("There is a 20% chance that an item will be enchanted when Enchantments is true.\n You can add a loot item by copying a different item and editing the value(s). If you mess up & the plugin breaks, use /battle settings reset.");

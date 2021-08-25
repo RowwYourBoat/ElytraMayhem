@@ -25,13 +25,20 @@ public class availableArguments {
 
         settingsArguments.add("findBiomeWithLand");
         settingsArguments.add("playersGlow");
-        settingsArguments.add("specialOccurrences");
         settingsArguments.add("amountOfFireworksAtStart");
         settingsArguments.add("borderSize");
         settingsArguments.add("maxItemsInOneChest");
         settingsArguments.add("amountOfChests");
         settingsArguments.add("battleRoyaleMode.enabled");
         settingsArguments.add("battleRoyaleMode.borderShrinkingDurationInSeconds");
+        settingsArguments.add("specialOccurrences.enabled");
+        settingsArguments.add("specialOccurrences.everyRound");
+        settingsArguments.add("specialOccurrences.occurrences.Thunder");
+        settingsArguments.add("specialOccurrences.occurrences.DoubleHP");
+        settingsArguments.add("specialOccurrences.occurrences.HalfHP");
+        settingsArguments.add("specialOccurrences.occurrences.OPLoot");
+        settingsArguments.add("specialOccurrences.occurrences.SlowFalling");
+        settingsArguments.add("specialOccurrences.occurrences.OnlyCrossbow");
         settingsArguments.add("reset");
 
         return settingsArguments;

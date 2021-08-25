@@ -6,18 +6,22 @@ import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -32,13 +36,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class game extends roundSetup {
 
+    boolean devMode = true;
+
     JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
 
     boolean setupInProgress = false;
     boolean gameInProgress = false;
+    int timeUntilStart = 15;
+
     AtomicBoolean specialOccurrence = new AtomicBoolean(false);
     String specialOccurrenceType = null;
-    int timeUntilStart = 15;
+    int lastSpecialOccurrenceNumber = 0;
 
     List<UUID> playersInGame = new ArrayList<>();
 
@@ -142,6 +150,17 @@ public class game extends roundSetup {
                                 player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "OP LOOT EVENT", 5, 40, 5);
                                 player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
                                 break;
+                            case "SlowFalling":
+                                currentWorld.setTime(18000);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "SLOW FALLING EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 99999, 0));
+                                break;
+                            case "OnlyCrossbow":
+                                currentWorld.setTime(18000);
+                                player.sendTitle(ChatColor.GOLD + "FIGHT!", ChatColor.DARK_PURPLE + "CROSSBOW EVENT", 5, 40, 5);
+                                player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 5, 1);
+                                break;
                         }
                     }
                 }
@@ -156,11 +175,11 @@ public class game extends roundSetup {
                     player.setGameMode(GameMode.SPECTATOR);
             }
 
-            if(playersInGame.size() == 1 && gameInProgress){
+            if(playersInGame.size() == 1 && gameInProgress && !devMode){
                 playerVictory();
-                endGame();
+                endGame(currentWorld);
             } else if (playersInGame.isEmpty()){
-                endGame();
+                endGame(currentWorld);
             }
 
         }, 0, 20);
@@ -178,7 +197,7 @@ public class game extends roundSetup {
         }
     }
 
-    public void endGame(){
+    public void endGame(World currentWorld){
         if (!gameInProgress && !setupInProgress)
             return;
 
@@ -193,8 +212,18 @@ public class game extends roundSetup {
         playersInGame.clear();
         timeUntilStart = 15;
 
+        currentWorld.setTime(1000);
+        currentWorld.setThundering(false);
+        currentWorld.setStorm(false);
+        WorldBorder border = currentWorld.getWorldBorder();
+        border.setSize(settingsData.getInt("borderSize"));
+
         for(Player player : Bukkit.getOnlinePlayers()){
-            World currentWorld = player.getWorld();
+
+            for(PotionEffect effect : player.getActivePotionEffects())
+                if(player.hasPotionEffect(effect.getType()))
+                    player.removePotionEffect(effect.getType());
+
             player.getInventory().clear();
             player.teleport(currentWorld.getSpawnLocation());
             player.setGameMode(GameMode.SURVIVAL);
@@ -202,30 +231,51 @@ public class game extends roundSetup {
             player.setSaturation(5);
             player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             player.setHealth(20);
-            currentWorld.setTime(1000);
-            currentWorld.setThundering(false);
-            currentWorld.setStorm(false);
-            WorldBorder border = currentWorld.getWorldBorder();
-            border.setSize(settingsData.getInt("borderSize"));
+
         }
+
+        for(Entity entityOnGround : currentWorld.getEntities())
+            if (entityOnGround instanceof Item || entityOnGround instanceof ItemStack)
+                entityOnGround.remove();
+
     }
 
     public void getSpecialOccurrence(FileConfiguration settingsData) {
+        if(!settingsData.getBoolean("specialOccurrences.enabled"))
+            return;
+
         Random random = new Random();
         int randomValue = random.nextInt(11 - 1) + 1;
-        specialOccurrence.set(randomValue == 1 && settingsData.getBoolean("specialOccurrences"));
+        specialOccurrence.set(settingsData.getBoolean("specialOccurrences.everyRound") || randomValue == 1);
 
-        if (specialOccurrence.get()){
-            int occurrenceNumber = random.nextInt(5 - 1) + 1;
-            if (occurrenceNumber == 1) {
-                specialOccurrenceType = "Thunder";
-            } else if (occurrenceNumber == 2) {
-                specialOccurrenceType = "DoubleHP";
-            } else if (occurrenceNumber == 3) {
-                specialOccurrenceType = "HalfHP";
-            } else {
-                specialOccurrenceType = "OPLoot";
+        if (specialOccurrence.get()) {
+
+            for(int i = 0 ; i < 20 ; i++) {
+
+                int occurrenceNumber = random.nextInt(7 - 1) + 1;
+
+                if (occurrenceNumber != lastSpecialOccurrenceNumber) {
+                    if (occurrenceNumber == 1 && settingsData.getBoolean("specialOccurrences.occurrences.Thunder")) {
+                        specialOccurrenceType = "Thunder";
+                    } else if (occurrenceNumber == 2 && settingsData.getBoolean("specialOccurrences.occurrences.DoubleHP")) {
+                        specialOccurrenceType = "DoubleHP";
+                    } else if (occurrenceNumber == 3 && settingsData.getBoolean("specialOccurrences.occurrences.HalfHP")) {
+                        specialOccurrenceType = "HalfHP";
+                    } else if (occurrenceNumber == 4 && settingsData.getBoolean("specialOccurrences.occurrences.OPLoot")) {
+                        specialOccurrenceType = "OPLoot";
+                    } else if (occurrenceNumber == 5 && settingsData.getBoolean("specialOccurrences.occurrences.SlowFalling")) {
+                        specialOccurrenceType = "SlowFalling";
+                    } else if (settingsData.getBoolean("specialOccurrences.occurrences.OnlyCrossbow"))
+                        specialOccurrenceType = "OnlyCrossbow";
+
+                    if (specialOccurrenceType != null){
+                        lastSpecialOccurrenceNumber = occurrenceNumber;
+                        break;
+                    }
+                }
+
             }
+
         }
 
     }
@@ -283,6 +333,65 @@ public class game extends roundSetup {
                 currentWorld.getBlockAt((int) chestLocation.getX() - 1, (int) chestLocation.getY() - 1, (int) chestLocation.getZ()).setType(Material.BEDROCK);
                 currentWorld.getBlockAt((int) chestLocation.getX(), (int) chestLocation.getY() - 1, (int) chestLocation.getZ() + 1).setType(Material.BEDROCK);
                 currentWorld.getBlockAt((int) chestLocation.getX(), (int) chestLocation.getY() - 1, (int) chestLocation.getZ() - 1).setType(Material.BEDROCK);
+            }
+        }
+
+        @EventHandler(priority = EventPriority.HIGHEST)
+        public void onCrossbowShot(EntityShootBowEvent event) {
+            if (!gameInProgress)
+                return;
+            if (event.getBow().getType() == Material.CROSSBOW && event.getEntity() instanceof Player){
+                Player playerWhoShotTheCrossbow = (Player) event.getEntity();
+                if (event.getProjectile().getType() == EntityType.FIREWORK){
+                    Firework firework = (Firework) event.getProjectile();
+                    if (!firework.getFireworkMeta().hasDisplayName()) {
+                        event.setCancelled(true);
+                        playerWhoShotTheCrossbow.sendMessage(ChatColor.RED + "You can't fire regular/super fireworks with a crossbow!");
+                        return;
+                    }
+                    String customName = firework.getFireworkMeta().getDisplayName();
+                    if (!customName.equals(ChatColor.RED + "Crossbow Ammo")){
+                        event.setCancelled(true);
+                        playerWhoShotTheCrossbow.sendMessage(ChatColor.RED + "You can't fire regular/super fireworks with a crossbow!");
+                    }
+                }
+            }
+        }
+
+        @EventHandler(priority = EventPriority.HIGHEST)
+        public void blockElytraBoost(PlayerInteractEvent event) {
+            if (!gameInProgress)
+                return;
+            Player player = event.getPlayer();
+            if (player.isGliding()){
+                if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR){
+                    if(player.getInventory().getItemInMainHand().getType() == Material.FIREWORK_ROCKET || player.getInventory().getItemInOffHand().getType() == Material.FIREWORK_ROCKET) {
+                        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+                        ItemStack offHandItem = player.getInventory().getItemInOffHand();
+
+                        JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
+                        plugin.getLogger().info(mainHandItem + " : " + offHandItem);
+
+                        if (mainHandItem.getType() != Material.AIR) {
+                            ItemMeta mainHandMeta = mainHandItem.getItemMeta();
+                            if (mainHandMeta.hasDisplayName()) {
+                                if (mainHandMeta.getDisplayName().equals(ChatColor.RED + "Crossbow Ammo")) {
+                                    event.setCancelled(true);
+                                    player.sendMessage(ChatColor.RED + "You aren't able to boost yourself with crossbow ammo!");
+                                }
+                            }
+
+                        } else if (offHandItem.getType() != Material.AIR) {
+                            ItemMeta offHandMeta = offHandItem.getItemMeta();
+                            if (offHandMeta.hasDisplayName()) {
+                                if (offHandMeta.getDisplayName().equals(ChatColor.RED + "Crossbow Ammo")) {
+                                    event.setCancelled(true);
+                                    player.sendMessage(ChatColor.RED + "You aren't able to boost yourself with crossbow ammo!");
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
