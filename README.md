@@ -1,5 +1,5 @@
-# Elytra Mayhem
-This is a Minigame Plugin, where all players will be teleported to a random location on the world where they'll have to fight to the death using the items in the loot chests. There's a catch though; every player will have an elytra (and some fireworks) and the loot chests will spawn in the air. The last man standing wins. Good luck, and have fun!
+# About
+This is a fun and original pvp minigame plugin, where all players will spawn in the air with an elytra and some fireworks at a random location in the overworld. They'll have to loot the chests with randomly generated loot in them to get geared up. Last man standing wins!
 
 ## Features
 
@@ -24,7 +24,7 @@ The plugin will look for a battle location within 1 million blocks, meaning you 
 Up to 50 (default: 10) loot chests will spawn within the world border with randomly generated loot.
 
 ### Special Occurrences
-There is a 10% chance that a random event will take place (Double HP, Thunder). This may be turned off if you wish!
+There is a 10% chance that a random event will take place (Double/Half HP, Thunder, OP Loot, Slow Falling, Only Crossbow). This may be turned off if you wish!
 
 ### Battle Royale Mode
 If Battle Royale Mode is on (default: off), the border will shrink slowly towards the middle of the battle area, until it reaches a size of one. You're able to configure the size of the border and the speed of which it shrinks.
@@ -35,21 +35,7 @@ Once you've gathered a few friends to play with (a minimum of 3 players is recom
 ## Settings / Configuration
 You're able to configure the settings in-game with the command /battle settings or via the settings.yml file. **Keep in mind that you aren't able to configure the loot chests with commands.** The configurable settings are:
 
-findBiomeWithLand - Determine whether you want the plugin to look for a biome with at least some land or not. Disabling this may reduce the duration of the setup process.
-
-playersGlow - Determines whether players will glow during a round.
-
-specialOccurrences - Determines whether special events will take place (double health, thunder). There's a 10% chance one will take place when enabled.
-
-amountOfFireworksAtStart - How many fireworks each player will receive at the start. (limit: 64)
-
-borderSize - The size of the border. (minimum: 100, limit: 500)
-
-maxItemsInOneChest - The maximum amount of items in one chest. (limit: 27)
-
-amountOfChests - The amount of loot chests that will spawn. (limit: 30)
-
-battleRoyaleMode - Determines whether the border will shrink over time.
+![image](https://user-images.githubusercontent.com/75913945/130792405-c316c19e-8227-4b1c-9667-3bab4a6c9321.png)
 
 To reset all config files, you can use the command **/battle settings reset**.
 
