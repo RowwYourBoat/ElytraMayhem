@@ -1,5 +1,5 @@
 # About
-This is a fun and original pvp minigame plugin, where all players will spawn in the air with elytra's and some fireworks at a random location in the overworld. They'll have to loot the chests with randomly generated loot in them to get geared up. Last man standing wins!
+This is a fun and original pvp minigame plugin, where all players will spawn in the air with an elytra and some fireworks at a random location in the overworld. They'll have to loot the chests with randomly generated loot in them to get geared up. Last man standing wins!
 
 ## Features
 
