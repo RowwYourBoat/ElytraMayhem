@@ -1,5 +1,5 @@
-# Elytra Mayhem
-This is a Minigame Plugin, where all players will be teleported to a random location on the world where they'll have to fight to the death using the items in the loot chests. There's a catch though; every player will have an elytra (and some fireworks) and the loot chests will spawn in the air. The last man standing wins. Good luck, and have fun!
+# About
+This is a fun and original pvp minigame plugin, where all players will spawn in the air with elytra's and some fireworks at a random location in the overworld. They'll have to loot the chests with randomly generated loot in them to get geared up. Last man standing wins!
 
 ## Features
 
@@ -24,7 +24,7 @@ The plugin will look for a battle location within 1 million blocks, meaning you 
 Up to 50 (default: 10) loot chests will spawn within the world border with randomly generated loot.
 
 ### Special Occurrences
-There is a 10% chance that a random event will take place (Double HP, Thunder). This may be turned off if you wish!
+There is a 10% chance that a random event will take place (Double/Half HP, Thunder, OP Loot, Slow Falling, Only Crossbow). This may be turned off if you wish!
 
 ### Battle Royale Mode
 If Battle Royale Mode is on (default: off), the border will shrink slowly towards the middle of the battle area, until it reaches a size of one. You're able to configure the size of the border and the speed of which it shrinks.
