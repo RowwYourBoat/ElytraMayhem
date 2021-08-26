@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class game extends roundSetup {
 
-    boolean devMode = true;
+    boolean devMode = false;
 
     JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
 
@@ -53,6 +53,9 @@ public class game extends roundSetup {
     BukkitScheduler scheduler = Bukkit.getScheduler();
 
     public boolean startGame(Player executor) {
+
+        if (devMode)
+            executor.sendMessage(ChatColor.GOLD + "devMode is on! I might've left this on by accident, please contact me if so! Rowan#8309");
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
