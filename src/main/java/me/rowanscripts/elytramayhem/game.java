@@ -55,7 +55,7 @@ public class game extends roundSetup {
     public boolean startGame(Player executor) {
 
         if (devMode)
-            executor.sendMessage(ChatColor.GOLD + "devMode is on! I might've left this on by accident, please contact me if so! Rowan#8309");
+            executor.sendMessage(ChatColor.RED + ChatColor.BOLD.toString() + "devMode is on! I might've left this on by accident, please contact me if so! Rowan#8309");
 
         File f = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(f);
