@@ -35,7 +35,7 @@ Once you've gathered a few friends to play with (a minimum of 3 players is recom
 ## Settings / Configuration
 You're able to configure the settings in-game with the command /battle settings or via the settings.yml file. **Keep in mind that you aren't able to configure the loot chests with commands.** The configurable settings are:
 
-![image](https://user-images.githubusercontent.com/75913945/130792405-c316c19e-8227-4b1c-9667-3bab4a6c9321.png)
+![Schermafbeelding 2022-07-07 141051](https://user-images.githubusercontent.com/75913945/177770045-4fd20515-6b16-4e53-9525-86ae24b10418.png)
 
 To reset all config files, you can use the command **/battle settings reset**.
 
