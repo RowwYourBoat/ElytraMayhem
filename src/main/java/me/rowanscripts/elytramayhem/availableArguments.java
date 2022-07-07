@@ -30,6 +30,7 @@ public class availableArguments {
         settingsArguments.add("borderSize");
         settingsArguments.add("maxItemsInOneChest");
         settingsArguments.add("amountOfChests");
+        settingsArguments.add("fireworksAfterVictory");
 
         settingsArguments.add("battleRoyaleMode.enabled");
         settingsArguments.add("battleRoyaleMode.borderShrinkingDurationInSeconds");

@@ -21,11 +21,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -202,6 +204,30 @@ public class game extends roundSetup {
         }
     }
 
+    public void launchFireworks(UUID uuid){
+        Player player = Bukkit.getPlayer(uuid);
+        Location playerLoc = player.getLocation();
+        double diameter = 5;
+
+        for (int i = 0; i < 7; i++){
+            double angle = 2 * Math.PI * i / 7;
+            Location newLocation = playerLoc.clone().add(diameter * Math.sin(angle), 0, diameter * Math.cos(angle));
+            int highestBlockYAt = newLocation.getWorld().getHighestBlockYAt(newLocation) + 2;
+            newLocation.setY(highestBlockYAt);
+            Firework firework = (Firework) player.getWorld().spawnEntity(newLocation, EntityType.FIREWORK);
+            FireworkMeta meta = firework.getFireworkMeta();
+
+            meta.setPower(1);
+            meta.addEffect(FireworkEffect.builder().withColor(Color.YELLOW, Color.WHITE).withFlicker().withTrail().build());
+
+            firework.setFireworkMeta(meta);
+
+        }
+
+
+        plugin.getLogger().info("finished launch");
+    }
+
     public void endGame(World currentWorld){
         if (!gameInProgress && !setupInProgress)
             return;
@@ -214,6 +240,7 @@ public class game extends roundSetup {
         specialOccurrence.set(false);
         specialOccurrenceType = null;
         scheduler.cancelTasks(JavaPlugin.getPlugin(Main.class));
+        UUID playerWhoWon = playersInGame.get(0);
         playersInGame.clear();
 
         currentWorld.setTime(1000);
@@ -237,6 +264,9 @@ public class game extends roundSetup {
             player.setHealth(20);
 
         }
+
+        if (settingsData.getBoolean("fireworksAfterVictory"))
+            scheduler.runTaskLater(Main.getPlugin(Main.class), () -> launchFireworks(playerWhoWon), 20);
 
         for(Entity entityOnGround : currentWorld.getEntities())
             if (entityOnGround instanceof Item || entityOnGround instanceof ItemStack)

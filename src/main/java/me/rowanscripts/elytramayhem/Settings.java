@@ -27,6 +27,7 @@ public class Settings {
             try {
                 settingsData.set("findBiomeWithLand", true); // forces the plugin to find a biome with at least some land
                 settingsData.set("playersGlow", true); // toggle whether players will glow during rounds
+                settingsData.set("fireworksAfterVictory", true); // toggle whether fireworks will spawn at the end of a round
                 settingsData.set("countdownDuration", 15); // the duration of the countdown at the start of a round
                 settingsData.set("amountOfFireworksAtStart", 3); // how many fireworks each player will receive at the start (limit: 64)
                 settingsData.set("borderSize", 150); // the size of the border (minimum: 100, limit: 500)
@@ -66,8 +67,6 @@ public class Settings {
 
         File settingsFile = new File(plugin.getDataFolder(), "settings.yml");
         FileConfiguration settingsData = YamlConfiguration.loadConfiguration(settingsFile);
-        File lootFile = new File(plugin.getDataFolder(), "loot.yml");
-        FileConfiguration lootData = YamlConfiguration.loadConfiguration(lootFile);
 
         if (args.length < 2)
             executor.sendMessage("/battle settings <setting|reset> <set|get> <value>");
